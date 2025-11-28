@@ -22,6 +22,23 @@ let sidebar = document.getElementById('sidebar');
         };
     }
     
+    // --- Sidebar Persistence Check (Immediate) ---
+function applyInitialSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return; 
+
+    // Only apply the persistent state on desktop (> 800px)
+    if (window.innerWidth > 800) {
+        const state = localStorage.getItem('sidebarState');
+        if (state === 'hidden') {
+            // This forces the 'hidden' class to be applied instantly.
+            sidebar.classList.add('hidden');
+        } else {
+            sidebar.classList.remove('hidden');
+        }
+    }
+}
+
     // --- Theme Management ---
     function applyTheme(theme) {
         // Uses settingsItems which is set in setupThemeLogic
@@ -108,94 +125,68 @@ let sidebar = document.getElementById('sidebar');
         });
     }
     
-    // --- Active Sidebar Item ---
     function setActiveSidebarItem() {
         const current = window.location.pathname.split('/').pop().split('?')[0].split('#')[0];
+        
+        // Treat an empty string current page as 'index.html' for matching purposes
+        const cleanCurrent = current === '' ? 'index.html' : current;
+        
         document.querySelectorAll('#sidebar a').forEach(link => {
-            if ((current === '' || current === 'index.html' || current === 'main2.html') && link.getAttribute('href') === 'main2.html') {
-               link.classList.add('active');
-            } else {
-               link.classList.toggle('active', link.getAttribute('href') === current);
-            }
+            // General logic only: highlight the link if its href matches the current page name
+            link.classList.toggle('active', link.getAttribute('href') === cleanCurrent);
         });
     }
     
-    // --- Sidebar Collapsible Logic (with Indentation Fix) ---
-    function setupSidebarCollapsibles() {
-        document.querySelectorAll('#sidebar .prominent button').forEach(btn => {
-            const li = btn.closest('li');
-            let hasActiveChild = false;
+ // --- Sidebar Collapsible Logic (Modified for Nested UL Structure) ---
+function setupSidebarCollapsibles() {
+    // 1. Process only the prominent items that contain a collapsible list
+    document.querySelectorAll('#sidebar .prominent').forEach(prominentLi => {
+        
+        const btn = prominentLi.querySelector('button');
+        const collapsibleUl = prominentLi.querySelector('ul.collapsible-content');
+
+        // Ensure we have both the button and the collapsible list
+        if (!btn || !collapsibleUl) return;
+
+        // 2. Determine if any child link is active (for initial expansion)
+        const hasActiveChild = collapsibleUl.querySelector('a.active') !== null;
+        const startExpanded = hasActiveChild;
+
+        // 3. Setup initial state and toggle icon
+        if (!btn.querySelector('.sidebar-toggle-icon')) {
+            const icon = document.createElement('span');
+            icon.className = 'sidebar-toggle-icon';
+            icon.textContent = '▼';
+            btn.appendChild(icon);
+            icon.style.transform = startExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
+        }
+        btn.setAttribute('aria-expanded', startExpanded);
+        
+        // Set initial visibility for the nested UL itself
+        collapsibleUl.style.display = startExpanded ? '' : 'none';
+
+        // 4. Click Handler to toggle the nested UL
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             
-            // 1. Determine if children are active/should start expanded
-            let tempSibling = li.nextElementSibling;
-            while (tempSibling && !tempSibling.classList.contains('prominent')) {
-                if(tempSibling.classList.contains('book-page')) break;
-                if(tempSibling.classList.contains('standalone')) break; // STOP at standalone
-                if (tempSibling.querySelector('a.active')) {
-                    hasActiveChild = true;
-                    break;
-                }
-                tempSibling = tempSibling.nextElementSibling;
-            }
+            const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+            const nextState = !isExpanded;
             
-            const startExpanded = hasActiveChild;
-
-            // Add toggle arrow and initial ARIA state (existing code)
-            if(!btn.querySelector('.sidebar-toggle-icon')) {
-                const icon = document.createElement('span');
-                icon.className = 'sidebar-toggle-icon';
-                icon.textContent = '▼'; 
-                btn.appendChild(icon);
-                icon.style.transform = startExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
+            btn.setAttribute('aria-expanded', nextState);
+            const icon = btn.querySelector('.sidebar-toggle-icon');
+            if(icon) {
+              icon.style.transform = nextState ? 'rotate(0deg)' : 'rotate(-90deg)';
             }
-            btn.setAttribute('aria-expanded', startExpanded);
 
-            // 2. Set initial visibility AND apply .is-indented class
-            let sibling = li.nextElementSibling;
-            while (sibling && !sibling.classList.contains('prominent')) {
-                if(sibling.classList.contains('book-page')) break;
-                if(sibling.classList.contains('standalone')) break; // STOP at standalone
-
-                // --- CRITICAL ADDITION FOR INDENTATION ---
-                sibling.classList.add('is-indented');
-                // ------------------------------------------
-
-                if (!startExpanded) {
-                    sibling.style.display = 'none';
-                } else {
-                    sibling.style.display = '';
-                }
-                sibling = sibling.nextElementSibling;
-            }
-            
-            // Click Handler (existing code to handle visibility toggle)
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const currentLi = btn.closest('li');
-                const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-                const nextState = !isExpanded;
-                
-                btn.setAttribute('aria-expanded', nextState);
-                const icon = btn.querySelector('.sidebar-toggle-icon');
-                if(icon) {
-                  icon.style.transform = nextState ? 'rotate(0deg)' : 'rotate(-90deg)';
-                }
-
-                let nextSibling = currentLi.nextElementSibling;
-                while (nextSibling && !nextSibling.classList.contains('prominent')) {
-                    if(nextSibling.classList.contains('book-page')) break;
-                    if(nextSibling.classList.contains('standalone')) break; // STOP at standalone
-                    nextSibling.style.display = nextState ? '' : 'none'; 
-                    nextSibling = nextSibling.nextElementSibling;
-                }
-            });
+            // Toggle the visibility of the nested UL
+            collapsibleUl.style.display = nextState ? '' : 'none'; 
         });
-    }
+    });
+}
 
     // --- Sortable Tables (Preserved) ---
     function makeTableSortable(table) {
-        // ... (Your original makeTableSortable function body) ...
         const headers = table.tHead?.rows[0]?.cells;
         if (!headers) return;
     
@@ -231,7 +222,6 @@ let sidebar = document.getElementById('sidebar');
     }
     
     function sortColumn(tbody, colIndex, direction) {
-        // ... (Your original sortColumn function body) ...
         const rows = Array.from(tbody.rows);
         const isAsc = direction === 'asc';
         const sample = rows.map(r => r.cells[colIndex]?.textContent.trim()).find(v => v);
@@ -254,19 +244,18 @@ let sidebar = document.getElementById('sidebar');
     }
     
     function resetToDefaultOrder(tbody, original) {
-        // ... (Your original resetToDefaultOrder function body) ...
         tbody.innerHTML = '';
         original.forEach(r => tbody.appendChild(r.cloneNode(true)));
     }
 
-    // --- Spoiler/Accordion Functionality (Preserved) ---
+    // --- Spoiler/Accordion ---
     function setupSpoilerLogic() {
         document.querySelectorAll('.spoiler-area').forEach(spoiler => {
             const header = spoiler.querySelector('.spoiler-header');
             
             const toggleDiv = document.createElement('div');
             toggleDiv.className = 'spoiler-toggle';
-            toggleDiv.innerHTML = '<span class="icon">►</span>';
+            toggleDiv.innerHTML = '<span class="icon">▼</span>';
             header.appendChild(toggleDiv);
             
             header.addEventListener('click', () => {
@@ -275,14 +264,13 @@ let sidebar = document.getElementById('sidebar');
         });
     }
     
-    // --- Prev/Next Navigation (Preserved) ---
+    // --- Prev/Next Navigation ---
     function setupPrevNextNavigation() {
-        // ... (Your original setupPrevNextNavigation function body) ...
         const sidebarLinks = Array.from(document.querySelectorAll('#sidebar a[href]'));
         const current = window.location.pathname.split('/').pop().split('?')[0].split('#')[0];
         let currentIndex = sidebarLinks.findIndex(a => a.getAttribute('href') === current);
         
-        // Fallback if current index is -1 (e.g. root vs main2.html)
+        // Fallback if current index is -1
         if (currentIndex === -1 && (current === '' || current === 'index.html')) {
             currentIndex = sidebarLinks.findIndex(a => a.getAttribute('href') === 'main2.html');
         }
@@ -308,12 +296,11 @@ let sidebar = document.getElementById('sidebar');
         }
     }
     
-    // --- Global Resize Handler (Centralized and Debounced) ---
+    // --- Global Resize Handler ---
     const handleGlobalResize = debounce(() => {
         initializeSidebar();
     }, 150);
     
-    // --- Run after content is loaded and injected ---
     const runOnLoad = () => {
         // 1. Assign global DOM elements (must happen after fetch)
         body = document.body;
@@ -370,6 +357,11 @@ let sidebar = document.getElementById('sidebar');
         // 3. Run setup functions after content is loaded
         runOnLoad();
     };
-
-    // Start the async chain
-    document.addEventListener('DOMContentLoaded', initializeApp); 
+// Start the async chain
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Force the hidden state check immediately
+    applyInitialSidebarState(); 
+    
+    // 2. Then proceed with the content fetching
+    initializeApp();
+});

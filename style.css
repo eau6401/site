@@ -4,15 +4,15 @@
 
   --color-primary: #f3f6f9;
   --color-accent: #1e40af;
-  --color-accent-2: #bce2ff;
+  --color-accent-2: #8fa9bc;
   --color-text: #333;
   --color-background: #f5f5f5;
   --color-content-bg: #fff;
   --color-border: #c0c0c0;
   --color-hover-bg: #f0f0f0;
-  --color-active-bg-light: #e5eeff;
+  --color-active-bg-light: #f0f5ff;
   --color-active-hover-bg: #d9e8fd;
-  --color-table-row-light: #f7f7f7;
+  --color-table-row-light: #f5f5f5;
   --color-table-header: #e4e3e3;
 }
 
@@ -25,10 +25,10 @@ body.dark-theme {
   --color-content-bg: #252525;
   --color-border: #505050;
   --color-hover-bg: #383838;
-  --color-active-bg-light: #323d4b;
-  --color-active-hover-bg: #385072;
-  --color-table-row-light: #2c2c2c;
-  --color-table-header: #444;
+  --color-active-bg-light: #30363e;
+  --color-active-hover-bg: #2c3d54;
+  --color-table-row-light: #333;
+  --color-table-header: #484848;
 }
 @font-face {
   font-family: NotoSerif;
@@ -90,7 +90,8 @@ button {
   user-select: none;
 }
 
-#menu-toggle, #settings-toggle {
+#menu-toggle,
+#settings-toggle {
   cursor: pointer;
   display: flex;
   position: relative;
@@ -159,15 +160,16 @@ button {
 #sidebar {
   z-index: 999;
   position: fixed;
-  top: 4rem;
-  left: 0;
-  width: var(--sidebar-width-desktop);
-  height: calc(100vh - 4rem);
+  top: 6rem;
+  left: 2rem;
+  width: calc(var(--sidebar-width-desktop) - 2rem);
+  height: calc(100vh - 8rem);
+  height: auto;
   background-color: var(--color-content-bg);
   overflow-y: auto;
   transition: transform 0.3s ease;
   box-shadow: 2px 0 4px rgba(0,0,0,0.2);
-  padding-bottom: 4rem;
+  border: 1px solid var(--color-border);
 }
 #sidebar.hidden {
   transform: translateX(calc(-1 * var(--sidebar-width-desktop)));
@@ -186,7 +188,7 @@ button {
 
 #sidebar li.book-page > a {
   font-weight: 600;
-  padding: 0.9rem 1rem 0.8rem 1rem;
+  padding: 0.9rem 1rem 0.9rem 1rem;
   margin-top: 0.2rem;
   text-align: center;
   font-size: 1.6rem;
@@ -196,7 +198,7 @@ button {
 #sidebar li.prominent > button {
   text-align: left;
   font-weight: 600;
-  padding: 0.6rem 1rem 0.6rem 1.2rem;
+  padding: 0.8rem 1rem 0.8rem 1.2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -223,9 +225,16 @@ button {
   color: var(--color-accent);
 }
 
-#sidebar li.is-indented > a,
-#sidebar li.is-indented > button {
+#sidebar ul.collapsible-content li a {
   padding-left: 2.5rem;
+}
+
+#sidebar li.prominent > button[aria-expanded="true"] {
+  border-bottom: 1px solid var(--color-border);
+}
+
+#sidebar ul.collapsible-content li:last-child {
+  border-bottom: none;
 }
 
 .sidebar-toggle-icon {
@@ -259,9 +268,10 @@ button {
   width: 100%;
   max-width: calc(100vw - var(--sidebar-width-desktop));
   height: min-content;
+  border: 1px solid var(--color-border);
 }
 .content-section h1 {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   margin-top: 0rem;
   font-size: 2.8rem;
   padding-bottom: 1rem;
@@ -269,7 +279,7 @@ button {
 }
 
 .content-section h2 {
-  margin-top: 4rem;
+  margin-top: 3rem;
   margin-bottom: 1.5rem;
   font-size: 2rem;
   clear: right;
@@ -315,7 +325,7 @@ button {
   line-height: 1;
   transition: transform 0.2s ease; 
   user-select: none;
-  transform: rotate(0deg);
+  transform: rotate(-90deg);
   opacity: 0.6;
 }
 
@@ -330,11 +340,10 @@ button {
 
 .spoiler-area.open .spoiler-header {
   border-bottom: 1px solid var(--color-border);
-  color: var(--color-accent);
 }
 
 .spoiler-area.open .spoiler-toggle .icon {
-  transform: rotate(90deg);
+  transform: rotate(0deg);
   opacity: 1;
   color: var(--color-accent);
 }
@@ -551,44 +560,6 @@ figure.align-right img {
     overflow-wrap: anywhere;
     hyphens: auto;
 }
-/* --- Main Page Specific Styles --- */
-.book-hero {
-  display: flex;
-  gap: 3rem;
-  align-items: flex-start;
-}
-
-.book-cover {
-  /* Flexible container */
-  flex-shrink: 0;
-  max-width: 25rem; 
-  width: auto; /* Adapts to image width */
-}
-
-.book-cover img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  /* Border/Shadow on image directly so missing image doesn't leave box */
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.book-meta {
-  flex-grow: 1;
-}
-
-.book-meta h1 {
-  font-size: 3.2rem;
-  margin-bottom: 1rem;
-  border: none;
-  padding: 0;
-}
-
-.book-meta .description {
-  font-size: 1.6rem;
-  line-height: 1.6;
-}
 
 /* --- Responsive Layout --- */
 @media (max-width:800px) {
@@ -596,6 +567,9 @@ figure.align-right img {
     width: var(--sidebar-width-mobile);
     transform: translateX(-100%);
     transition: transform 0.3s;
+    height: calc(100vh - 4rem);
+    top: 4rem;
+    left: 0;
   }
   #sidebar.visible { 
     transform: translateX(0); 
@@ -615,15 +589,6 @@ figure.align-right img {
   .image-wrapper {
     max-width: 100%;
     overflow: hidden;
-  }
-  .book-hero {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  .book-cover {
-    width: auto;
-    max-width: 20rem; /* Smaller max-width for mobile */
   }
 
   .table-wrapper,
@@ -692,6 +657,12 @@ figure.align-right img {
 
   .spoiler-area {
     max-width: 100%;
+  }
+}
+
+@media (min-width: 801px) {
+  #sidebar li:last-child {
+    border-bottom: none;
   }
 }
 
