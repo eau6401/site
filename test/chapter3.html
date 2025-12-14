@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitheca</title>
+<style>
+:root {
+  --sidebar-width-desktop: 27rem;
+  --sidebar-width-mobile: 25rem;
+
+  --color-primary: #f3f6f9;
+  --color-accent: #3063d2;
+  --color-accent-2: #8fa9bc;
+  --color-text: #333;
+  --color-background: #f7f7f7;
+  --color-content-bg: #fff;
+  --color-border: #c0c0c0;
+  --color-hover-bg: #f0f0f0;
+  --color-active-bg-light: #f0f5ff;
+  --color-active-hover-bg: #d9e8fd;
+  --color-table-row-light: #f5f5f5;
+  --color-table-header: #e4e3e3;
+  --link-color: #446cf3;
+}
+
+body.dark-theme {
+  --color-primary: #333;
+  --color-accent: #64b5f6;
+  --color-accent-2: #113858;
+  --color-text: #e0e0e0;
+  --color-background: #1a1a1a;
+  --color-content-bg: #252525;
+  --color-border: #505050;
+  --color-hover-bg: #383838;
+  --color-active-bg-light: #30363e;
+  --color-active-hover-bg: #2c3d54;
+  --color-table-row-light: #333;
+  --color-table-header: #484848;
+  --link-color: #446cf3;
+}
+@font-face {
+  font-family: NotoSerif;
+  src: url(../assets/NotoSerif-var.ttf);
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+} 
+
+html {
+  font-size: 62.5%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: NotoSerif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-size: 1.6rem;
+}
+
+button {
+  font-family: NotoSerif;
+  color: var(--color-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+a {
+  color: var(--link-color);
+}
+
+/* --- Top Bar --- */
+#top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4rem;
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 1000;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+  gap: 1rem;
+}
+
+#top-bar a {
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  user-select: none;
+  font-variant: small-caps;
+}
+
+#menu-toggle,
+#settings-toggle {
+  cursor: pointer;
+  display: flex;
+  position: relative;
+  width: auto;
+  height: auto;
+  font-size: 1.5rem;
+}
+
+.nav-arrow {
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  padding: 0 1rem 0.2rem 1rem;
+  width: auto;
+  height: auto;
+}
+
+.nav-arrow.disabled {
+  opacity: 0.25;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* --- Settings Menu --- */
+.settings-menu {
+  position: fixed;
+  top: 5.5rem;
+  right: 2rem;
+  background-color: var(--color-content-bg);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0px 12px 2px rgba(0,0,0,0.15);
+  min-width: 12rem;
+  display: none;
+  z-index: 1001;
+  color: var(--color-text);
+}
+.settings-menu.visible {
+  display: block;
+}
+.settings-header {
+  padding: 0.8rem 1.6rem;
+  font-weight: 700;
+  font-size: 1.4rem;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+.settings-item {
+  padding: 0.6rem 1.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 1.4rem;
+}
+.settings-item:active {
+  background-color: var(--color-border);
+}
+.settings-item.active {
+  background-color: var(--color-active-bg-light);
+  color: var(--color-accent);
+}
+
+/* --- Sidebar (Navigation) --- */
+#sidebar {
+  z-index: 999;
+  position: fixed;
+  top: 6rem;
+  left: 2rem;
+  width: calc(var(--sidebar-width-desktop) - 2rem);
+  height: calc(100vh - 8rem);
+  height: auto;
+  background-color: var(--color-content-bg);
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  box-shadow: 0px 0 4px rgba(0,0,0,0.2);
+  border: 1px solid var(--color-border);
+}
+#sidebar.hidden {
+  transform: translateX(calc(-1 * var(--sidebar-width-desktop)));
+}
+
+#sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#sidebar li {
+  border-bottom: 1px solid var(--color-border);
+  overflow-wrap: anywhere;
+}
+
+#sidebar li.book-page > a {
+  font-weight: 600;
+  padding: 0.8rem 1rem 0.8rem 1rem;
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+#sidebar li.prominent > a,
+#sidebar li.prominent > button {
+  text-align: left;
+  font-weight: 600;
+  padding: 0.7rem 1rem 0.7rem 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+#sidebar li a,
+#sidebar button {
+  text-align: left;
+  display: block;
+  text-decoration: none;
+  color: var(--color-text);
+  padding: 0.6rem 1rem;
+  user-select: none;
+  font-size: 1.5rem;
+}
+
+#sidebar li a:active,
+#sidebar li button:active {
+  background-color: var(--color-border);
+}
+#sidebar li a.active {
+  background-color: var(--color-active-bg-light);
+  color: var(--color-accent);
+}
+
+#sidebar ul.collapsible-content li a {
+  padding-left: 2.5rem;
+}
+
+#sidebar ul.collapsible-content li:first-child {
+  border-top: 1px solid var(--color-border);
+}
+
+#sidebar ul.collapsible-content li:last-child {
+  border-bottom: none;
+}
+
+.sidebar-toggle-icon {
+  font-size: 0.8em;
+  transition: transform 0.2s ease;
+  opacity: 0.7;
+}
+
+#sidebar li.prominent > button[aria-expanded="true"] .sidebar-toggle-icon {
+  opacity: 1;
+  color: var(--color-accent);
+}
+
+/* --- Main Content Area --- */
+#main-content {
+  margin-left: var(--sidebar-width-desktop);
+  margin-top: 4rem;
+  padding: 0 clamp(1rem, 2vw, 2rem);
+  transition: margin-left 0.3s, opacity 0.3s ease;
+  display: flex;
+  justify-content: center;
+  width: auto;
+  min-height: calc(100vh - 4rem);
+}
+#sidebar.hidden + #main-content {
+  margin-left: 0;
+  justify-content: center;
+}
+
+.content-section {
+  background-color: var(--color-content-bg);
+  padding: 2rem clamp(1rem, 2vw, 3rem);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 0px 4px rgba(0,0,0,0.2);
+  width: 100%;
+  max-width: calc(100vw - var(--sidebar-width-desktop));
+  height: min-content;
+  border: 1px solid var(--color-border);
+}
+.content-section h1 {
+  margin-bottom: 1rem;
+  margin-top: 0rem;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.content-section h2 {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  clear: right;
+}
+.content-section p {
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Spoiler/Accordion Area --- */
+.spoiler-area {
+  margin: 2rem 0;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  overflow: visible; 
+}
+
+.spoiler-header {
+  background-color: var(--color-active-bg-light); 
+  color: var(--color-text); 
+  padding: 0.6rem 1.4rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center; 
+  justify-content: space-between;
+  border: none;
+}
+
+.spoiler-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 100%;
+  margin-left: 1.5rem; 
+  flex-shrink: 0; 
+}
+
+.spoiler-toggle .icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  transition: transform 0.2s ease; 
+  user-select: none;
+  transform: rotate(-90deg);
+  opacity: 0.6;
+}
+
+.spoiler-content {
+  background-color: var(--color-content-bg);
+  padding: 0 1.5rem;
+  max-height: 0; 
+  overflow: hidden;
+  transition: none;
+  border: none;
+}
+
+.spoiler-area.open .spoiler-header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.spoiler-area.open .spoiler-toggle .icon {
+  transform: rotate(0deg);
+  opacity: 1;
+  color: var(--color-accent);
+}
+
+.spoiler-area.open .spoiler-content {
+  max-height: 8000px;
+  padding: 0 1.5rem;
+}
+
+.spoiler-content p:last-child {
+  margin-bottom: 2rem; 
+}
+
+/* --- Tables and Data --- */
+table {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 60rem;
+  border-collapse: collapse;
+  font-size: 1.5rem;
+  table-layout: auto;
+}
+.table-wrapper {
+  width: 100%;
+  margin: 1.5rem auto; 
+  max-width: 60rem;
+  display: flex;
+  justify-content: center;
+  /*display: block;
+  text-align: center;*/
+}
+
+th, td {
+  border: 1px solid var(--color-border);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+}
+th {
+  background-color: var(--color-table-header);
+  font-weight: 600;
+}
+
+.sticky-header table {
+  position: relative;
+}
+
+table.sticky-header th {
+  position: sticky;
+  top: 4rem;
+  z-index: 2;
+  overflow-y: auto;
+}
+
+table.sortable th {
+  position: relative;
+  padding-right: 2.4rem;
+}
+
+table.sortable.sticky-header th {
+  position: sticky;
+  top: 4rem; /* Ensure this matches your top-bar height */
+  z-index: 2;
+}
+
+.sort-button {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.5rem;
+  line-height: 0.5;
+}
+.sort-button .arrow {
+  font-size: 0.9em;
+  opacity: 0.4;
+  transform: scale(1, 0.6);
+  display: block;
+}
+.sort-button .arrow.active {
+  opacity: 1;
+  color: var(--color-accent);
+}
+
+tr:nth-child(even) td {
+  background-color: var(--color-table-row-light);
+}
+
+/* --- Code and Figures --- */
+pre {
+  font-family: Noto Mono, monospace;
+  background-color: var(--color-table-row-light);
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  font-size: 1.4rem;
+  overflow-x: auto;
+  margin: 1.5rem 0; 
+  white-space: pre;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+}
+
+caption, figcaption {
+  font-size: 1.3rem;
+  margin-top: 0.8rem;
+  caption-side: bottom;
+  text-align: left;
+  color: var(--color-text);
+}
+
+figure {
+  margin: 2.5rem auto;
+  display: table; 
+}
+
+.image-wrapper {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0;
+}
+.image-wrapper img {
+  max-width: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+figcaption {
+  display: table-caption;
+  caption-side: bottom;
+}
+
+/* --- Right Alignment Utility (Floating Layout) */
+.align-right {
+    float: right;
+    margin-left: 3rem;
+    margin-bottom: 2rem;
+    margin-top: 0;
+}
+
+figure.align-right {
+    max-width: 35%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    float: right;
+}
+figure.align-right .image-wrapper {
+    max-width: 100%;
+    margin: 0;
+}
+
+figure.align-right img {
+    margin: 0;
+    display: block;
+    width: 100%;
+}
+
+.table-wrapper.align-right {
+    display: block;
+    max-width: min(35rem, 45%);
+    
+}
+.table-wrapper.align-right table {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+.table-wrapper.align-right table td,
+.table-wrapper.align-right table th {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+
+/* --- Responsive Layout --- */
+@media (max-width:800px) {
+  #sidebar { 
+    width: var(--sidebar-width-mobile);
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    height: calc(100vh - 4rem);
+    top: 4rem;
+    left: 0;
+  }
+  #sidebar.visible { 
+    transform: translateX(0); 
+  }
+  #main-content {
+    margin-left: 0;
+    padding: 0 1.5rem;
+  }
+  #sidebar.visible ~ #main-content {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .content-section {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+  .image-wrapper {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .table-wrapper,
+  figure.align-right, 
+  .table-wrapper.align-right {
+    float: none; 
+    margin: 1.5rem 0; 
+    width: 100%; 
+    max-width: 100%; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  figure,
+  .image-wrapper,
+  .image-wrapper img {
+    width: 100%;
+    max-width: 100% ;
+  }
+
+  figure.align-right .image-wrapper {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  figure.align-right img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  figure.align-right figcaption {
+    align-self: flex-start;
+    text-align: left;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .table-wrapper table,
+  .table-wrapper.align-right table {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+  }
+
+  .spoiler-area {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 801px) {
+  #sidebar li:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (hover: hover) {
+  #top-bar a:hover,
+  #top-bar button:hover {
+    color: var(--color-accent);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+  .settings-item:hover {
+    background-color: var(--color-hover-bg);
+  }
+  .settings-item.active:hover {
+    background-color: var(--color-active-hover-bg);
+  }
+  #sidebar li a:hover,
+  #sidebar li button:hover {
+    background-color: var(--color-hover-bg);
+  }
+  #sidebar li a.active:hover {
+    background-color: var(--color-active-hover-bg);
+  }
+  .spoiler-header:hover {
+    background-color: var(--color-active-hover-bg);
+  }
+}
+
+@media (hover: none) {
+  #top-bar a:active,
+  #top-bar button:active {
+    color: var(--color-accent);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+  }
+  .settings-item:active {
+    background-color: var(--color-hover-bg);
+  }
+  .settings-item.active:active {
+    background-color: var(--color-active-hover-bg);
+  }
+  #sidebar li a:active,
+  #sidebar li button:active {
+    background-color: var(--color-hover-bg);
+  }
+  #sidebar li a.active:active {
+    background-color: var(--color-active-hover-bg);
+  }
+  .spoiler-header:active {
+    background-color: var(--color-active-hover-bg);
+  }
+}
+</style>
+</head>
+<body>
+
+<header id="top-bar-container">
+  <div id="top-bar">
+    <button id="menu-toggle" title="Sidebar">Menu</button>
+    <button id="prev-page" class="nav-arrow">&lt;</button>
+    <a id="main-page" href="../index.html" title="Main Page">Cognitheca</a>
+    <button id="next-page" class="nav-arrow">&gt;</button>
+    <button id="settings-toggle" title="Options">Options</button>
+  </div>
+  
+  <div id="settings-menu" class="settings-menu">
+    <div class="settings-header">Theme</div>
+    <button class="settings-item" data-theme="light">Light</button>
+    <button class="settings-item" data-theme="dark">Dark</button>
+    <button class="settings-item active" data-theme="auto">Auto</button>
+  </div>
+</header>
+
+<nav id="sidebar">
+  <ul>
+    <li class="main-page"><a href="main.html">Book Name</a></li>
+    
+    <li class="prominent">
+      <button><span>Part I</span></button> 
+      <ul class="collapsible-content">
+        <li><a href="chapter1.html">Chapter 1</a></li>
+        <li><a href="chapter2.html">Chapter 2</a></li>
+      </ul>
+    </li>
+    <li><a href="chapter3.html">Chapter 3</a></li>
+    <li><a href="chapter4.html">Chapter 4</a></li>
+    
+    <li class="prominent">
+      <button><span>Part II</span></button>
+      <ul class="collapsible-content">
+        <li><a href="chapter5.html">Chapter 3</a></li>
+        <li><a href="chapter6.html">Chapter 4</a></li>
+      </ul>
+    </li>
+    
+    <li><a href="appendix.html">Appendix</a></li>
+  </ul>
+</nav>
+
+<main id="main-content">
+<article class="content-section">
+
+<h1>Chapter 1: Title</h1>
+
+<p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptatibus, iste, ullam error a sunt quas, quo asperiores corporis voluptate ea labore? Perferendis magni veritatis eaque exercitationem aut nesciunt eius magnam.</p>
+
+<p>Plain text paragraph example:
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugit officia tempora hic temporibus, dolorum enim error. Itaque harum nesciunt labore voluptas quod quo, quis neque. Numquam officia eos hic iste! Lorem ipsum dolor, sit amet consectetur adipisicing elit. Exercitationem error debitis officia, molestias quidem rerum sint, pariatur ipsum voluptate corrupti est quaerat dolores provident temporibus accusantium corporis nisi, optio consequuntur?</p>
+
+<h2>Content Spoiler (Accordion) Example</h2>
+
+<div class="spoiler-area">
+    <div class="spoiler-header">
+        Click to reveal critical analysis
+    </div>
+    <div class="spoiler-content">
+        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem fugit asperiores aperiam sunt corrupti hic provident cumque commodi iste odio autem, laboriosam corporis non rem, officia distinctio vitae laudantium delectus.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt cum explicabo nostrum magnam nemo amet rerum tempora minus, voluptatibus blanditiis enim officiis doloribus aut tempore, libero autem mollitia odio. Quam?</p>
+        <p>More text to force scrolling...</p>
+        <figure>
+            <div class="image-wrapper">
+                <img src="../media/2000x1000.png">
+            </div>
+            <figcaption>.sdfsfs fdsfskfksdfmak flsdfalsdf,alf dfakmdfa dfskmfmdskl sdfsfs fdsfskfksdfmak flsdfalsdf,alf dfakmdfa dfskmfmdskl</figcaption>
+        </figure>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+        <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+</div>
+
+<div class="spoiler-area">
+    <div class="spoiler-header">
+        Show supplemental reading list
+    </div>
+    <div class="spoiler-content">
+        <p>1. Campbell, J. *The Hero with a Thousand Faces*.</p>
+        <p>2. Jung, C. G. *The Archetypes and the Collective Unconscious*.</p>
+        <p>3. Vogler, C. *The Writer's Journey*.</p>
+    </div>
+</div>
+
+<h2>Sortable table</h2>
+<div class="table-wrapper"> <table class="sortable">
+    <caption>Table 1: A table.</caption>
+    <thead>
+    <tr><th>Letters</th><th>Numbers</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>A</td><td>001</td></tr>
+    <tr><td>B</td><td>1,0</td></tr>
+    <tr><td>Z</td><td>1,0</td></tr>
+    <tr><td>a</td><td>2.0</td></tr>
+    <tr><td>b</td><td>2,0</td></tr>
+    <tr><td>z</td><td>0,0</td></tr>
+    </tbody>
+    </table>
+</div>
+
+<h2>Sticky header table</h2>
+<div class="table-wrapper"> <table class="sticky-header">
+    <caption>Table 2: A table sdfsfs fdsfskfksdfmak flsdfalsdf,alf dfakmdfa dfskmfmdskl sdfsfs fdsfskfksdfmak flsdfalsdf,alf dfakmdfa dfskmfmdskl</caption>
+<thead>
+    <tr><th>Letters</th><th>Numbers</th></tr>
+</thead>
+<tbody>
+    <tr><td>A</td><td>001</td></tr>
+    <tr><td>B</td><td>1,0</td></tr>
+    <tr><td>Z</td><td>1,0</td></tr>
+    <tr><td>a</td><td>2.0</td></tr>
+    <tr><td>b</td><td>2,0</td></tr>
+    <tr><td>z</td><td>0,0</td></tr>
+</tbody>
+    </table>
+</div>
+
+<h2>Both</h2>
+<div class="table-wrapper"> <table class="sortable sticky-header">
+  <caption>Table 1: A table.</caption>
+  <thead>
+  <tr><th>Letters</th><th>Numbers</th></tr>
+  </thead>
+  <tbody>
+  <tr><td>A</td><td>001</td></tr>
+  <tr><td>B</td><td>1,0</td></tr>
+  <tr><td>Z</td><td>1,0</td></tr>
+  <tr><td>a</td><td>2.0</td></tr>
+  <tr><td>b</td><td>2,0</td></tr>
+  <tr><td>z</td><td>0,0</td></tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>A</h2>
+<figure>
+    <div class="image-wrapper">
+        <img src="../media/2000x1000.png">
+    </div>
+    <figcaption>.sdfsfs fdsfskfksdfmak flsdfalsdf,alf dfakmdfa dfskmfmdskl sdfsfs fdsfskfksdfmak flsdfalsdf,alf dfakmdfa dfskmfmdskl</figcaption>
+</figure>
+
+<div class="table-wrapper"> <table>
+    <caption>Table 3: Library Titles</caption>
+    <tr><td>Fiction</td><td>1240 Titles</td></tr>
+    <tr><td>Non-fiction</td><td>980 Titles</td></tr>
+    <tr><td>Science</td><td>640 Titles</td></tr>
+    <tr><td>History</td><td>310 Titles</td></tr>
+    </table>
+</div>
+
+<h2>a</h2>
+<figure class="align-right">
+    <div class="image-wrapper">
+        <img src="../media/800x600.png" alt="Placeholder image">
+    </div>
+    <figcaption>Figure 1 – This image is now floated right, allowing the subsequent text to wrap around it.</figcaption>
+</figure>
+
+<pre><code>// Example
+some code...
+more...
+</code></pre>
+
+<h2>Image Example (Right-Aligned with Text Wrap)</h2>
+<figure class="align-right">
+    <div class="image-wrapper">
+        <img src="../media/400x400.png" alt="Placeholder image">
+    </div>
+    <figcaption>Figure 1 – This image is now floated right, allowing the subsequent text to wrap around it.</figcaption>
+</figure>
+
+<p>This paragraph now demonstrates **text wrapping** around the floating image on the right. Floats are traditionally used for images and small content blocks in articles to create dynamic layouts where text fills the remaining space. Since the floating element has a defined width and is pulled to the right, the paragraphs here will occupy the remaining space on the left until they clear the bottom of the image.</p>
+
+<p>If you add more text, it will continue to flow here, wrapping nicely around the image until it reaches the end of the image block. This provides a much more professional and engaging reading experience compared to stacked blocks.</p>
+
+<p>The consistent spacing of 2rem after the `h2` header above remains intact, ensuring that headers don't get accidentally pulled too close to the floating elements.</p>
+
+<h2>Table Example (Right-Aligned with Text Wrap)</h2>
+<div class="table-wrapper align-right">
+    <table>
+    <caption>Table 4: Right-aligned data with text wrapping.</caption>
+    <tr><td>Itemaaaaaaaaa Itemaaaaaaaaa Itemaaaaaaaaa</td><td>Value Itemaaaaaaaaa Itemaaaaaaaaa</td></tr>
+    <tr><td>Alpha</td><td>100</td></tr>
+    <tr><td>Beta</td><td>200</td></tr>
+    <tr><td>Gamma</td><td>300</td></tr>
+    <tr><td>Delta</td><td>400</td></tr>
+    </table>
+</div>
+
+<p>This paragraph wraps around the right-aligned table above. Like the image, the table has been given a set maximum width (35rem) to ensure there is enough room for the text to flow smoothly alongside it. This technique is highly effective for displaying ancillary data or small figures without breaking the primary flow of the reading material.</p>
+
+<p>Remember that on smaller screens, these elements will automatically stop floating and return to their default, centered, full-width stacking behavior to maintain a good mobile experience.</p>
+</article>
+</main>
+
+<script>
+    // --- Global Variables (Declared with 'let' to be assigned after fetch) ---
+    let settingsToggle, settingsMenu, settingsItems, menuToggle;
+
+    let currentTheme = localStorage.getItem('theme') || 'auto';
+    let body = document.body;
+let sidebar = document.getElementById('sidebar');
+// --- Synchronous Initial Theme Check (Fix 1: Prevents FOUC/Shimmer) ---
+(function() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (currentTheme === 'dark' || (currentTheme === 'auto' && prefersDark)) {
+        // Apply class directly to body before script continues
+        document.body.classList.add('dark-theme');
+    }
+})();
+
+    // --- Utility: Debounce ---
+    function debounce(fn, delay) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn(...args), delay);
+        };
+    }
+    
+    // --- Sidebar Persistence Check (Immediate) ---
+function applyInitialSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return; 
+
+    // Only apply the persistent state on desktop (> 800px)
+    if (window.innerWidth > 800) {
+        const state = localStorage.getItem('sidebarState');
+        if (state === 'hidden') {
+            // This forces the 'hidden' class to be applied instantly.
+            sidebar.classList.add('hidden');
+        } else {
+            sidebar.classList.remove('hidden');
+        }
+    }
+}
+
+    // --- Theme Management ---
+    function applyTheme(theme) {
+        // Uses settingsItems which is set in setupThemeLogic
+        settingsItems.forEach(i => i.classList.toggle('active', i.dataset.theme === theme));
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        body.classList.toggle('dark-theme', theme === 'dark' || (theme === 'auto' && prefersDark));
+        localStorage.setItem('theme', theme);
+    }
+    
+    function setupThemeLogic() {
+        // Assign elements after top bar injection
+        settingsToggle = document.getElementById('settings-toggle');
+        settingsMenu = document.getElementById('settings-menu');
+        settingsItems = document.querySelectorAll('.settings-item');
+        
+        applyTheme(currentTheme);
+    
+        // Toggle settings menu
+        settingsToggle.onclick = e => {
+            e.stopPropagation();
+            settingsMenu.classList.toggle('visible');
+        };
+        
+        // Theme selection
+        settingsItems.forEach(item => {
+            item.onclick = () => {
+                applyTheme(item.dataset.theme);
+                settingsMenu.classList.remove('visible');
+            };
+        });
+        
+        // Close settings when clicking outside
+        document.addEventListener('click', e => {
+            if (!settingsMenu.contains(e.target) && !settingsToggle.contains(e.target)) {
+                settingsMenu.classList.remove('visible');
+            }
+        });
+        
+        // Update theme on system preference change
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (localStorage.getItem('theme') === 'auto') {
+                body.classList.toggle('dark-theme', e.matches);
+            }
+        });
+    }
+
+    // --- Sidebar Logic ---
+    function isMobile() { return window.innerWidth <= 800; }
+
+    function initializeSidebar() {
+        if (!isMobile()) {
+            sidebar.classList.remove('visible');
+            const state = localStorage.getItem('sidebarState');
+            if (state === 'hidden') sidebar.classList.add('hidden');
+            else sidebar.classList.remove('hidden');
+        } else {
+            sidebar.classList.remove('hidden'); 
+        }
+    }
+    
+    function toggleSidebar() {
+        if (isMobile()) {
+            sidebar.classList.toggle('visible');
+        } else {
+            sidebar.classList.toggle('hidden');
+            localStorage.setItem('sidebarState', sidebar.classList.contains('hidden') ? 'hidden' : 'visible');
+        }
+    }
+
+    function setupSidebarLogic() {
+        // Assign elements after top bar injection
+        menuToggle = document.getElementById('menu-toggle');
+
+        menuToggle.addEventListener('click', e => {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+        
+        // Close mobile sidebar on outside click
+        document.addEventListener('click', e => {
+            if (window.innerWidth <= 800 && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('visible');
+            }
+        });
+    }
+    
+    function setActiveSidebarItem() {
+        const current = window.location.pathname.split('/').pop().split('?')[0].split('#')[0];
+        
+        // Treat an empty string current page as 'index.html' for matching purposes
+        const cleanCurrent = current === '' ? 'index.html' : current;
+        
+        document.querySelectorAll('#sidebar a').forEach(link => {
+            // General logic only: highlight the link if its href matches the current page name
+            link.classList.toggle('active', link.getAttribute('href') === cleanCurrent);
+        });
+    }
+    
+ // --- Sidebar Collapsible Logic (Modified for Nested UL Structure) ---
+function setupSidebarCollapsibles() {
+    // 1. Process only the prominent items that contain a collapsible list
+    document.querySelectorAll('#sidebar .prominent').forEach(prominentLi => {
+        
+        const btn = prominentLi.querySelector('button');
+        const collapsibleUl = prominentLi.querySelector('ul.collapsible-content');
+
+        // Ensure we have both the button and the collapsible list
+        if (!btn || !collapsibleUl) return;
+
+        // 2. Determine if any child link is active (for initial expansion)
+        const hasActiveChild = collapsibleUl.querySelector('a.active') !== null;
+        const startExpanded = hasActiveChild;
+
+        // 3. Setup initial state and toggle icon
+        if (!btn.querySelector('.sidebar-toggle-icon')) {
+            const icon = document.createElement('span');
+            icon.className = 'sidebar-toggle-icon';
+            icon.textContent = '▼';
+            btn.appendChild(icon);
+            icon.style.transform = startExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
+        }
+        btn.setAttribute('aria-expanded', startExpanded);
+        
+        // Set initial visibility for the nested UL itself
+        collapsibleUl.style.display = startExpanded ? '' : 'none';
+
+        // 4. Click Handler to toggle the nested UL
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+            const nextState = !isExpanded;
+            
+            btn.setAttribute('aria-expanded', nextState);
+            const icon = btn.querySelector('.sidebar-toggle-icon');
+            if(icon) {
+              icon.style.transform = nextState ? 'rotate(0deg)' : 'rotate(-90deg)';
+            }
+
+            // Toggle the visibility of the nested UL
+            collapsibleUl.style.display = nextState ? '' : 'none'; 
+        });
+    });
+}
+
+    // --- Sortable Tables (Preserved) ---
+    function makeTableSortable(table) {
+        const headers = table.tHead?.rows[0]?.cells;
+        if (!headers) return;
+    
+        const tbody = table.tBodies[0];
+        const originalOrder = Array.from(tbody.rows).map(row => row.cloneNode(true));
+        let currentSort = { column: null, direction: 'none' };
+    
+        Array.from(headers).forEach((header, index) => {
+            const sortBtn = document.createElement('span');
+            sortBtn.className = 'sort-button';
+            sortBtn.innerHTML = '<span class="arrow">▲</span><span class="arrow">▼</span>';
+            header.appendChild(sortBtn);
+    
+            sortBtn.addEventListener('click', () => {
+                let direction = 'asc';
+                if (currentSort.column === index) {
+                    direction = currentSort.direction === 'asc' ? 'desc' : currentSort.direction === 'desc' ? 'none' : 'asc';
+                }
+    
+                table.querySelectorAll('.sort-button .arrow').forEach(a => a.classList.remove('active'));
+    
+                if (direction === 'none') {
+                    resetToDefaultOrder(tbody, originalOrder);
+                } else {
+                    sortColumn(tbody, index, direction);
+                    const arrows = sortBtn.querySelectorAll('.arrow');
+                    arrows[direction === 'asc' ? 0 : 1].classList.add('active');
+                }
+    
+                currentSort = { column: index, direction };
+            });
+        });
+    }
+    
+    function sortColumn(tbody, colIndex, direction) {
+        const rows = Array.from(tbody.rows);
+        const isAsc = direction === 'asc';
+        const sample = rows.map(r => r.cells[colIndex]?.textContent.trim()).find(v => v);
+        const isNumeric = sample && /^-?\d+([.,]\d+)?$/.test(sample);
+    
+        rows.sort((a, b) => {
+            let aVal = a.cells[colIndex]?.textContent.trim() || '';
+            let bVal = b.cells[colIndex]?.textContent.trim() || '';
+            if (isNumeric) {
+                const aNum = parseFloat(aVal.replace(',', '.')) || 0;
+                const bNum = parseFloat(bVal.replace(',', '.')) || 0;
+                return isAsc ? aNum - bNum : bNum - aNum;
+            } else {
+                return isAsc ? aVal.localeCompare(bVal, undefined, { sensitivity: 'base' }) 
+                             : bVal.localeCompare(aVal, undefined, { sensitivity: 'base' });
+            }
+        });
+    
+        rows.forEach(r => tbody.appendChild(r));
+    }
+    
+    function resetToDefaultOrder(tbody, original) {
+        tbody.innerHTML = '';
+        original.forEach(r => tbody.appendChild(r.cloneNode(true)));
+    }
+
+    // --- Spoiler/Accordion ---
+    function setupSpoilerLogic() {
+        document.querySelectorAll('.spoiler-area').forEach(spoiler => {
+            const header = spoiler.querySelector('.spoiler-header');
+            
+            const toggleDiv = document.createElement('div');
+            toggleDiv.className = 'spoiler-toggle';
+            toggleDiv.innerHTML = '<span class="icon">▼</span>';
+            header.appendChild(toggleDiv);
+            
+            header.addEventListener('click', () => {
+                spoiler.classList.toggle('open');
+            });
+        });
+    }
+    
+    // --- Prev/Next Navigation ---
+    function setupPrevNextNavigation() {
+        const sidebarLinks = Array.from(document.querySelectorAll('#sidebar a[href]'));
+        const current = window.location.pathname.split('/').pop().split('?')[0].split('#')[0];
+        let currentIndex = sidebarLinks.findIndex(a => a.getAttribute('href') === current);
+        
+        // Fallback if current index is -1
+        if (currentIndex === -1 && (current === '' || current === 'index.html')) {
+            currentIndex = sidebarLinks.findIndex(a => a.getAttribute('href') === 'main2.html');
+        }
+      
+        const prevBtn = document.getElementById('prev-page');
+        const nextBtn = document.getElementById('next-page');
+      
+        const prevLink = currentIndex > 0 ? sidebarLinks[currentIndex - 1] : null;
+        const nextLink = currentIndex >= 0 && currentIndex < sidebarLinks.length - 1 ? sidebarLinks[currentIndex + 1] : null;
+      
+        if (prevLink) {
+          prevBtn.onclick = () => location.href = prevLink.getAttribute('href');
+          prevBtn.title = prevLink.textContent.trim();
+        } else {
+          prevBtn.classList.add('disabled');
+        }
+      
+        if (nextLink) {
+          nextBtn.onclick = () => location.href = nextLink.getAttribute('href');
+          nextBtn.title = nextLink.textContent.trim();
+        } else {
+          nextBtn.classList.add('disabled');
+        }
+    }
+    
+    // --- Global Resize Handler ---
+    const handleGlobalResize = debounce(() => {
+        initializeSidebar();
+    }, 150);
+    
+    const runOnLoad = () => {
+        // 1. Assign global DOM elements (must happen after fetch)
+        body = document.body;
+        sidebar = document.getElementById('sidebar');
+
+        // 2. Setup logic that depends on injected content
+        setupThemeLogic();
+        setupSidebarLogic();
+        setActiveSidebarItem();
+        setupPrevNextNavigation();
+        setupSidebarCollapsibles(); 
+        initializeSidebar();
+        
+        // 3. Initialize other DOM-dependent features
+        document.querySelectorAll('table.sortable').forEach(makeTableSortable);
+        setupSpoilerLogic();
+        
+        // 4. Attach resize listener
+        window.addEventListener('resize', handleGlobalResize); 
+    };
+
+    // --- Global Initialization (Fetches) ---
+    const initializeApp = async () => {
+        
+        // 1. Fetch Top Bar content
+        try {
+            const topBarContainer = document.getElementById('top-bar-container');
+            const topBarResponse = await fetch('topbar.html');
+            if (topBarResponse.ok) {
+                topBarContainer.innerHTML = await topBarResponse.text();
+            } else {
+                console.error('Failed to load topbar.html');
+                topBarContainer.innerHTML = '<p style="padding:0 2rem;">Error loading top bar.</p>';
+            }
+        } catch (e) {
+            console.error('Error fetching top bar:', e);
+            document.getElementById('top-bar-container').innerHTML = '<p style="padding:0 2rem;">Top bar requires web server (CORS).</p>';
+        }
+
+        // 2. Fetch Sidebar content
+        try {
+            const sidebarResponse = await fetch('sidebar.html');
+            if (sidebarResponse.ok) {
+                document.getElementById('sidebar').innerHTML = await sidebarResponse.text();
+            } else {
+                console.error('Failed to load sidebar.html');
+                document.getElementById('sidebar').innerHTML = '<p style="padding:1rem;">Error loading sidebar.</p>';
+            }
+        } catch (e) {
+            console.error('Error fetching sidebar:', e);
+            document.getElementById('sidebar').innerHTML = '<p style="padding:1rem;">Sidebar requires web server (CORS).</p>';
+        }
+
+        // 3. Run setup functions after content is loaded
+        runOnLoad();
+    };
+// Start the async chain
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Force the hidden state check immediately
+    applyInitialSidebarState(); 
+    
+    // 2. Then proceed with the content fetching
+    initializeApp();
+});
+</script>
+</body>
+</html>
