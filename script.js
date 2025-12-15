@@ -248,18 +248,18 @@ function setupSidebarCollapsibles() {
         original.forEach(r => tbody.appendChild(r.cloneNode(true)));
     }
 
-    // --- Spoiler/Accordion ---
-    function setupSpoilerLogic() {
-        document.querySelectorAll('.spoiler-area').forEach(spoiler => {
-            const header = spoiler.querySelector('.spoiler-header');
+    // --- Accordion ---
+    function setupAccordionLogic() {
+        document.querySelectorAll('.accordion-area').forEach(accordion => {
+            const header = accordion.querySelector('.accordion-header');
             
             const toggleDiv = document.createElement('div');
-            toggleDiv.className = 'spoiler-toggle';
+            toggleDiv.className = 'accordion-toggle';
             toggleDiv.innerHTML = '<span class="icon">▼</span>';
             header.appendChild(toggleDiv);
             
             header.addEventListener('click', () => {
-                spoiler.classList.toggle('open');
+                accordion.classList.toggle('open');
             });
         });
     }
@@ -275,8 +275,9 @@ function setupSidebarCollapsibles() {
             currentIndex = sidebarLinks.findIndex(a => a.getAttribute('href') === 'main2.html');
         }
       
-        const prevBtn = document.getElementById('prev-page');
-        const nextBtn = document.getElementById('next-page');
+        const prevBtn = document.querySelector('#top-bar-container #prev-page');
+        const nextBtn = document.querySelector('#top-bar-container #next-page');
+        if (!prevBtn || !nextBtn) return;
       
         const prevLink = currentIndex > 0 ? sidebarLinks[currentIndex - 1] : null;
         const nextLink = currentIndex >= 0 && currentIndex < sidebarLinks.length - 1 ? sidebarLinks[currentIndex + 1] : null;
@@ -316,47 +317,49 @@ function setupSidebarCollapsibles() {
         
         // 3. Initialize other DOM-dependent features
         document.querySelectorAll('table.sortable').forEach(makeTableSortable);
-        setupSpoilerLogic();
+        setupAccordionLogic();
         
         // 4. Attach resize listener
         window.addEventListener('resize', handleGlobalResize); 
     };
 
-    // --- Global Initialization (Fetches) ---
     const initializeApp = async () => {
-        
-        // 1. Fetch Top Bar content
-        try {
-            const topBarContainer = document.getElementById('top-bar-container');
-            const topBarResponse = await fetch('topbar.html');
-            if (topBarResponse.ok) {
-                topBarContainer.innerHTML = await topBarResponse.text();
-            } else {
-                console.error('Failed to load topbar.html');
-                topBarContainer.innerHTML = '<p style="padding:0 2rem;">Error loading top bar.</p>';
-            }
-        } catch (e) {
-            console.error('Error fetching top bar:', e);
-            document.getElementById('top-bar-container').innerHTML = '<p style="padding:0 2rem;">Top bar requires web server (CORS).</p>';
-        }
-
-        // 2. Fetch Sidebar content
-        try {
-            const sidebarResponse = await fetch('sidebar.html');
-            if (sidebarResponse.ok) {
-                document.getElementById('sidebar').innerHTML = await sidebarResponse.text();
-            } else {
-                console.error('Failed to load sidebar.html');
-                document.getElementById('sidebar').innerHTML = '<p style="padding:1rem;">Error loading sidebar.</p>';
-            }
-        } catch (e) {
-            console.error('Error fetching sidebar:', e);
-            document.getElementById('sidebar').innerHTML = '<p style="padding:1rem;">Sidebar requires web server (CORS).</p>';
-        }
-
-        // 3. Run setup functions after content is loaded
-        runOnLoad();
-    };
+    
+      // 1. Fetch Top Bar content
+      try {
+          const topBarContainer = document.getElementById('top-bar-container');
+          const topbarPath = topBarContainer.dataset.src || 'topbar.html';
+          const topBarResponse = await fetch(topbarPath);
+          if (topBarResponse.ok) {
+              topBarContainer.innerHTML = await topBarResponse.text();
+          } else {
+              console.error('Failed to load topbar.html');
+              topBarContainer.innerHTML = '<p style="padding:0 2rem;">Error loading top bar.</p>';
+          }
+      } catch (e) {
+          console.error('Error fetching top bar:', e);
+          document.getElementById('top-bar-container').innerHTML = '<p style="padding:0 2rem;">Top bar requires web server (CORS).</p>';
+      }
+  
+      // 2. Fetch Sidebar content
+      try {
+          const sidebar = document.getElementById('sidebar');
+          const sidebarPath = sidebar.dataset.src || 'sidebar.html';
+          const sidebarResponse = await fetch(sidebarPath);
+          if (sidebarResponse.ok) {
+              sidebar.innerHTML = await sidebarResponse.text();
+          } else {
+              console.error('Failed to load sidebar.html');
+              sidebar.innerHTML = '<p style="padding:1rem;">Error loading sidebar.</p>';
+          }
+      } catch (e) {
+          console.error('Error fetching sidebar:', e);
+          document.getElementById('sidebar').innerHTML = '<p style="padding:1rem;">Sidebar requires web server (CORS).</p>';
+      }
+  
+      // 3. Run setup functions after content is loaded
+      runOnLoad();
+  };
 // Start the async chain
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Force the hidden state check immediately
