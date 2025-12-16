@@ -2,8 +2,8 @@
   --sidebar-width-desktop: 25rem;
   --sidebar-width-mobile: 25rem;
 
-  --color-primary: #f6f6f6;
-  --color-accent: #0dba08;
+  --color-primary: #f5f7f5;
+  --color-accent: #0b8d06;
   --color-accent-2: #8fa9bc;
   --color-text: #333;
   --color-background: #fff;
@@ -11,12 +11,10 @@
   --color-border: #aaa;
   --color-hover-bg: #f0f0f0;
   --color-active-bg: #ddd;
-  --color-active-bg-light: #d8f1d9;
-  --color-active-hover-bg: #dbfdd9;
-  --color-table-row-light: #f6f6f6;
+  --color-active-bg-light: #ddf3dd;
+  --color-active-hover-bg: #cee9cd;
   --color-table-header: #e5e5e5;
-  --link-color: #0dba08;
-  --text-shadow-color: rgba(15, 207, 8, 0.6);
+  --text-shadow-color: rgba(16, 159, 11, 0.6);
 }
 
 body.dark-theme {
@@ -31,15 +29,18 @@ body.dark-theme {
   --color-active-bg: #4f4f4f;
   --color-active-bg-light: #303e30;
   --color-active-hover-bg: #30542c;
-  --color-table-row-light: #222;
   --color-table-header: #333;
-  --link-color: #0fcf08;
   --text-shadow-color: rgba(15, 207, 8, 0.4);
 }
 
 @font-face {
   font-family: site-font;
   src: url(assets/IBM-Plex.ttf);
+}
+
+@font-face {
+  font-family: mono-font;
+  src: url(assets/IBM-Plex-Mono.ttf);
 }
 
 /* Reset */
@@ -77,7 +78,7 @@ button {
 }
 
 a {
-  color: var(--link-color);
+  color: var(--color-accent);
   text-decoration: none;
 }
 
@@ -144,9 +145,9 @@ a:hover {
   position: fixed;
   top: 5.5rem;
   right: 1.5rem;
-  background-color: var(--color-content-bg);
+  background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  box-shadow: 0 0px 12px 2px rgba(0,0,0,0.15);
+  box-shadow: -4px 4px 10px 1px rgba(0,0,0,0.15);
   min-width: 12rem;
   display: none;
   z-index: 1001;
@@ -201,7 +202,7 @@ a:hover {
 
 #sidebar li > a:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 1px var(--color-accent);
+  box-shadow: inset 0 0 0 1.5px var(--color-accent);
 }
 
 #sidebar li {
@@ -216,7 +217,15 @@ a:hover {
   font-size: 1.6rem;
 }
 
-#sidebar li.prominent > a,
+#sidebar li.separator > div {
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.5rem;
+  padding: 0.6rem 1rem;
+  user-select: none;
+  width: 100%;
+}
+
 #sidebar li.prominent > button {
   text-align: left;
   font-weight: 500;
@@ -268,10 +277,12 @@ a:hover {
 
 .content-section {
   padding: 1.5rem;
+  padding-bottom: 6rem;
   margin: 0 auto;
   width: 100%;
   max-width: 110rem;
   height: min-content;
+  line-height: 1.4;
 }
 
 #main-content {
@@ -297,103 +308,70 @@ a:hover {
 }
 
 .content-section h2 {
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  font-size: 2rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 2.2rem;
+  font-weight: 500;
+  clear: right;
+}
+
+.content-section h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.8rem;
   font-weight: 500;
   clear: right;
 }
 
 .content-section p {
-  line-height: 1.5;
   margin-bottom: 1rem;
+  margin-top: 0;
 }
 
 fieldset {
   display: block;
   border: 2px solid var(--color-border);
   padding: 0rem 1.5rem;
-  margin: 0 1rem;
+  margin: 0 1rem 2rem 1rem;
 }
 
 legend {
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   font-weight: 500;
   padding: 0rem 0.4rem;
-  margin: 1rem 0rem 0rem 0rem;
+  margin: 1rem 0rem 0.5rem 0rem;
 }
 
 fieldset > p {
-  padding: 0rem;
-  margin: 0.5rem 0rem 0.5rem 0rem;
+  padding: 0 0 1rem 0;
+  margin-bottom: 0 !important;
 }
 
-/* Accordion */
-.accordion-area {
-  margin: 0 1rem;
-  max-width: 100%;
+fieldset > h3 {
+  padding: 1rem 0 0.5rem 0;
+  margin: 0 !important;
+}
+
+textarea {
+  font-family: mono-font, monospace;
+  color: var(--color-text);
+  background-color: var(--color-content-bg);
   border: 1px solid var(--color-border);
-  overflow: visible; 
+  padding: 1.5rem;
+  scroll-padding: 1.5rem;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  width: 100%;
+  margin: 0;
+  resize: none;
+  cursor: text;
+  caret-color: transparent;
 }
 
-.accordion-header {
-  background-color: var(--color-active-bg-light); 
-  color: var(--color-text); 
-  padding: 0.6rem 1.4rem;
-  font-size: 1.6rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center; 
-  justify-content: space-between;
-  border: none;
-}
-
-.accordion-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 100%;
-  margin-left: 1.5rem; 
-  flex-shrink: 0; 
-}
-
-.accordion-toggle .icon {
-  font-size: 1.6rem;
-  line-height: 1;
-  transition: transform 0.2s ease; 
-  user-select: none;
-  transform: rotate(-90deg);
-  opacity: 0.6;
-}
-
-.accordion-content {
-  /*background-color: var(--color-content-bg);*/
-  padding: 0 1.5rem;
-  max-height: 0; 
-  overflow: hidden;
-  transition: none;
-  border: none;
-}
-
-.accordion-area.open .accordion-header {
-  border-bottom: 1px solid var(--color-border);
-}
-
-.accordion-area.open .accordion-toggle .icon {
-  transform: rotate(0deg);
-  opacity: 1;
-  color: var(--color-accent);
-}
-
-.accordion-area.open .accordion-content {
-  max-height: 8000px;
-  padding: 0 1.5rem;
-}
-
-.accordion-content p:last-child {
-  margin-bottom: 2rem; 
+textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -3px;
 }
 
 /* --- Tables and Data --- */
@@ -415,7 +393,6 @@ th, td {
 th {
   background-color: var(--color-table-header);
   font-weight: 500;
-  z-index: 3; /* a fix for thin header border on mobile */
 }
 
 .sticky-header table {
@@ -429,43 +406,8 @@ table.sticky-header th {
   overflow-y: auto;
 }
 
-table.sortable th {
-  position: relative;
-  padding-right: 2.4rem;
-}
-
-table.sortable.sticky-header th {
-  position: sticky;
-  top: 4rem;
-  z-index: 2;
-}
-
-.sort-button {
-  position: absolute;
-  right: 0.4rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  cursor: pointer;
-  user-select: none;
-  padding: 0.5rem;
-  line-height: 0.5;
-}
-.sort-button .arrow {
-  font-size: 0.9em;
-  opacity: 0.4;
-  transform: scale(1, 0.6);
-  display: block;
-}
-.sort-button .arrow.active {
-  opacity: 1;
-  color: var(--color-accent);
-}
-
 tr:nth-child(odd) td {
-  background-color: var(--color-table-row-light);
+  background-color: var(--color-content-bg);
 }
 
 /* --- Figures --- */
@@ -500,16 +442,18 @@ figcaption {
   caption-side: bottom;
 }
 
+img {
+  border: 1px solid var(--color-border);
+}
+
 /* Right-aligned figures */
 figure.align-right {
-  max-width: 35%;
+  max-width: min(35rem, 45%);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   float: right;
-  margin-left: 3rem;
-  margin-bottom: 2rem;
-  margin-top: 0;
+  margin: 1rem 0 1rem 1rem;
 }
 
 figure.align-right img {
@@ -517,22 +461,12 @@ figure.align-right img {
   height: auto;
 }
 
-/* Right Alignment */
 table.align-right {
   float: right;
   display: block;
   width: 100%;
   max-width: min(35rem, 45%);
-  margin-left: 2rem;
-  margin-bottom: 1rem;
-  margin-top: 0;
-}
-
-table.align-right td,
-table.align-right th {
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  hyphens: auto;
+  margin: 1rem 0 1rem 1rem;
 }
 
 body.dark-theme img {
@@ -618,16 +552,10 @@ body.dark-theme img:hover {
     margin: 1.5rem auto;
     display: table;
   }
-  
-  .accordion-area {
-    max-width: 100%;
-    margin: 0;
-  }
 
   fieldset {
     margin: 0;
   }
-
 }
 
 @media (min-width: 801px) {
@@ -640,7 +568,7 @@ body.dark-theme img:hover {
   #top-bar a:hover,
   #top-bar button:hover {
     color: var(--color-accent);
-    text-shadow: 2px 2px 5px var(--text-shadow-color), -2px -2px 5px var(--text-shadow-color);
+    text-shadow: 0 0 5px var(--text-shadow-color);
   }
   .settings-item:hover {
     background-color: var(--color-hover-bg);
@@ -653,9 +581,6 @@ body.dark-theme img:hover {
     background-color: var(--color-hover-bg);
   }
   #sidebar li a.active:hover {
-    background-color: var(--color-active-hover-bg);
-  }
-  .accordion-header:hover {
     background-color: var(--color-active-hover-bg);
   }
   .settings-item:active {
@@ -693,17 +618,14 @@ body.dark-theme img:hover {
 
 #top-bar-container:has(#settings-menu.visible) #settings-toggle {
   color: var(--color-accent);
-  background-color: var(--color-active-bg-light);
 }
 
 body:has(#sidebar.visible) #menu-toggle {
   color: var(--color-accent);
-  background-color: var(--color-active-bg-light);
 }
 
 @media (min-width: 801px) {
   body:has(#sidebar:not(.hidden)) #menu-toggle {
     color: var(--color-accent);
-    background-color: var(--color-active-bg-light);
   }
 }
