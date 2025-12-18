@@ -126,80 +126,35 @@ function setupSidebarLogic() {
     });
 }
 
-function setActiveSidebarItem() {
-  // Get the full pathname (e.g., '/pages/doc.html')
-  const fullPath = window.location.pathname;
-  
-  // Also get just the filename for fallback matching
-  const filename = fullPath.split('/').pop().split('?')[0].split('#')[0];
-  const cleanFilename = filename === '' ? 'index.html' : filename;
-  
-  document.querySelectorAll('#sidebar a').forEach(link => {
-      const href = link.getAttribute('href');
-      
-      // Check if the href matches either:
-      // 1. The full pathname (e.g., '/pages/doc.html' === '/pages/doc.html')
-      // 2. Just the filename (e.g., 'doc.html' === 'doc.html')
-      // 3. The href ends with the current path (for relative links)
-      const isActive = 
-          href === fullPath ||                    // Exact match with full path
-          href === cleanFilename ||               // Match just filename
-          fullPath.endsWith(href) ||              // Path ends with href
-          (href.startsWith('/') && fullPath === href); // Absolute path match
-      
-      link.classList.toggle('active', isActive);
+// --- Sidebar Collapsible Logic (Simplified) ---
+function setupSidebarCollapsibles() {
+  document.querySelectorAll('#sidebar li > button').forEach(btn => {
+    const ul = btn.nextElementSibling;
+    if (!ul || ul.tagName !== 'UL') return;
+
+    const expanded = ul.querySelector('a.active') !== null;
+    
+    // Add triangle icon if it doesn't exist
+    if (!btn.querySelector('.tri')) {
+      const tri = document.createElement('span');
+      tri.className = 'tri';
+      tri.textContent = '▼';
+      btn.appendChild(tri);
+    }
+    
+    btn.setAttribute('aria-expanded', expanded);
+    ul.hidden = !expanded;
+
+    btn.onclick = e => {
+      e.preventDefault();
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !isExpanded);
+      ul.hidden = isExpanded;
+    };
   });
 }
 
-// --- Sidebar Collapsible Logic (Modified for Nested UL Structure) ---
-function setupSidebarCollapsibles() {
-// 1. Process only the prominent items that contain a collapsible list
-document.querySelectorAll('#sidebar .prominent').forEach(prominentLi => {
-    
-    const btn = prominentLi.querySelector('button');
-    const collapsibleUl = prominentLi.querySelector('ul.collapsible-content');
-
-    // Ensure we have both the button and the collapsible list
-    if (!btn || !collapsibleUl) return;
-
-    // 2. Determine if any child link is active (for initial expansion)
-    const hasActiveChild = collapsibleUl.querySelector('a.active') !== null;
-    const startExpanded = hasActiveChild;
-
-    // 3. Setup initial state and toggle icon
-    if (!btn.querySelector('.sidebar-toggle-icon')) {
-        const icon = document.createElement('span');
-        icon.className = 'sidebar-toggle-icon';
-        icon.textContent = '▼';
-        btn.appendChild(icon);
-        icon.style.transform = startExpanded ? 'rotate(0deg)' : 'rotate(-90deg)';
-    }
-    btn.setAttribute('aria-expanded', startExpanded);
-    
-    // Set initial visibility for the nested UL itself
-    collapsibleUl.style.display = startExpanded ? '' : 'none';
-
-    // 4. Click Handler to toggle the nested UL
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-        const nextState = !isExpanded;
-        
-        btn.setAttribute('aria-expanded', nextState);
-        const icon = btn.querySelector('.sidebar-toggle-icon');
-        if(icon) {
-          icon.style.transform = nextState ? 'rotate(0deg)' : 'rotate(-90deg)';
-        }
-
-        // Toggle the visibility of the nested UL
-        collapsibleUl.style.display = nextState ? '' : 'none'; 
-    });
-});
-}
-
-// --- Prev/Next Navigation ---
+// --- Sidebar navigation ---
 function setActiveSidebarItem() {
   // Get the full pathname (e.g., '/pages/doc.html')
   const fullPath = window.location.pathname;
