@@ -22,10 +22,10 @@ body.dark-theme {
   --color-accent: #0dba08;
   --color-accent-2: #113858;
   --color-text: #d0d0d0;
-  --color-background: #1a1a1a;
+  --color-background: #151515;
   --color-content-bg: #252525;
   --color-border: #666;
-  --color-hover-bg: #383838;
+  --color-hover-bg: #252525;
   --color-active-bg: #4f4f4f;
   --color-active-bg-light: #303e30;
   --color-active-hover-bg: #30542c;
@@ -49,7 +49,7 @@ body.dark-theme {
 } 
 
 *:focus-visible {
-  outline: 1px solid var(--color-accent);
+  outline: 1.5px solid var(--color-accent);
   outline-offset: 1px;
 }
 
@@ -128,7 +128,6 @@ a:hover {
   background: none;
   border: none;
   cursor: pointer;
-  transition: opacity 0.2s ease;
   padding: 0 1rem 0.2rem 1rem;
   width: auto;
   height: auto;
@@ -186,12 +185,14 @@ a:hover {
   width: calc(var(--sidebar-width-desktop) - 1.5rem);
   background-color: var(--color-background);
   height: auto;
-  overflow-y: auto;
   transition: transform 0.3s ease;
-  border: 1px solid var(--color-border);
+  outline: 1px solid var(--color-border);
+  max-height: calc(100vh - 7rem);
+  overflow-y: auto;
 }
+
 #sidebar.hidden {
-  transform: translateX(calc(-1 * var(--sidebar-width-desktop)));
+  transform: translateX(calc(-1 * var(--sidebar-width-desktop) - 1px));
 }
 
 #sidebar ul {
@@ -200,8 +201,47 @@ a:hover {
   padding: 0;
 }
 
-#sidebar li > a:focus-visible,
-#sidebar li > button:focus-visible {
+#sidebar li > div.sidebar-row {
+  display: flex;
+  align-items: stretch;
+}
+
+#sidebar li > div.sidebar-row a {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+}
+
+#sidebar li > div.sidebar-row button {
+  width: 3.3rem;
+  padding: 0;
+  border-left: 1px solid var(--color-border);
+  position: relative;
+}
+
+#sidebar li > div.sidebar-row button::after {
+  content: '▼';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  font-size: 1.3rem;
+  opacity: 0.7;
+  transition: transform 0.2s;
+}
+
+#sidebar li > div.sidebar-row button.open::after {
+  transform: translate(-50%, -50%) rotate(0deg);
+  opacity: 1;
+  color: var(--color-accent);
+}
+
+#sidebar li > div.sidebar-row + ul {
+  border-top: none;
+}
+
+#sidebar li a:focus-visible,
+#sidebar li button:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 1.5px var(--color-accent);
 }
@@ -222,9 +262,9 @@ a:hover {
   text-align: center;
   font-weight: 500;
   font-size: 1.5rem;
-  padding: 0.6rem 1rem;
+  padding: 0.4rem 1rem;
   user-select: none;
-  background-color: var(--color-content-bg);
+  background-color: var(--color-table-header);
 }
 
 #sidebar li > ul li a {
@@ -239,8 +279,7 @@ a:hover {
   border-bottom: none;
 }
 
-#sidebar li a,
-#sidebar button {
+#sidebar li a {
   text-align: left;
   display: block;
   text-decoration: none;
@@ -252,30 +291,6 @@ a:hover {
 
 #sidebar li a.active {
   background-color: var(--color-active-bg-light);
-  color: var(--color-accent);
-}
-
-#sidebar li > button {
-  text-align: left;
-  font-weight: 500;
-  padding: 0.7rem 1rem 0.7rem 1.2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-#sidebar li > button .tri {
-  font-size: 0.8em;
-  opacity: 0.7;
-  transition: transform 0.2s, opacity 0.2s;
-  transform: rotate(-90deg);
-  display: inline-block;
-}
-
-#sidebar li > button[aria-expanded="true"] .tri {
-  opacity: 1;
-  transform: rotate(0deg);
   color: var(--color-accent);
 }
 
@@ -334,9 +349,9 @@ a:hover {
 
 /* ------------------------------ Tables and Data ------------------------------ */
 table {
-  margin: 1.5rem 0;
+  margin: 1.5rem auto;
   max-width: 100%;
-  width: auto;
+  width: max-content;
   border-collapse: collapse;
   font-size: 1.5rem;
   display: block;
@@ -354,8 +369,9 @@ th {
   font-weight: 500;
 }
 
-.sticky-header table {
+table.sticky-header {
   position: relative;
+  display: table;
 }
 
 table.sticky-header th {
@@ -365,8 +381,13 @@ table.sticky-header th {
   overflow-y: auto;
 }
 
-tr:nth-child(odd) td {
+.alt-rows tr:nth-child(odd) td,
+.alt-rows:not(:has(th)) tr:nth-child(even) td {
   background-color: var(--color-content-bg);
+}
+
+.alt-rows:not(:has(th)) tr:nth-child(odd) td {
+  background-color: var(--color-background);
 }
 
 /* ------------------------------ Figures ------------------------------ */
@@ -412,7 +433,7 @@ figure.align-right {
   flex-direction: column;
   align-items: flex-start;
   float: right;
-  margin: 1rem 0 1rem 1rem;
+  margin: 0 0 1rem 1rem;
 }
 
 figure.align-right img {
@@ -425,7 +446,7 @@ table.align-right {
   display: block;
   width: 100%;
   max-width: min(35rem, 45%);
-  margin: 1rem 0 1rem 1rem;
+  margin: 0 0 1rem 1rem;
 }
 
 body.dark-theme img {
@@ -482,8 +503,8 @@ textarea {
 }
 
 textarea:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: -3px;
+  outline: 1.5px solid var(--color-accent);
+  outline-offset: -2.5px;
 }
 
 /* Accordion */
@@ -547,8 +568,8 @@ details > p {
     height: calc(100vh - 4rem);
     top: 4rem;
     left: 0;
+    max-height: calc(100vh - 4rem);
     border: none;
-    border-right: 1px solid var(--color-border);
   }
   
   #sidebar.visible {
@@ -599,11 +620,15 @@ details > p {
   }
 
   table {
-    width: 100%;
     max-width: 100%;
     margin: 1.5rem auto;
     display: block;
     overflow-x: auto;
+  }
+
+  table.sticky-header {
+    display: table;
+    width: 100%;
   }
   
   table.align-right {
@@ -658,6 +683,14 @@ details > p {
   #sidebar li a:active,
   #sidebar li button:active {
     background-color: var(--color-active-bg);
+  }
+
+  #sidebar li > div.sidebar-row button:hover {
+    background-color: var(--color-hover-bg);
+  }
+  
+  #sidebar li > div.sidebar-row button:hover::after {
+    opacity: 1;
   }
 }
 

@@ -126,30 +126,29 @@ function setupSidebarLogic() {
     });
 }
 
-// --- Sidebar Collapsible Logic (Simplified) ---
+// --- Sidebar Collapsible Logic ---
+
 function setupSidebarCollapsibles() {
-  document.querySelectorAll('#sidebar li > button').forEach(btn => {
-    const ul = btn.nextElementSibling;
+  document.querySelectorAll('#sidebar .sidebar-row > button').forEach(btn => {
+    const ul = btn.parentElement.nextElementSibling;
     if (!ul || ul.tagName !== 'UL') return;
 
-    const expanded = ul.querySelector('a.active') !== null;
+    const parentLink = btn.previousElementSibling;
+    const hasActiveChild = ul.querySelector('a.active') !== null;
+    const parentIsActive = parentLink && parentLink.classList.contains('active');
     
-    // Add triangle icon if it doesn't exist
-    if (!btn.querySelector('.tri')) {
-      const tri = document.createElement('span');
-      tri.className = 'tri';
-      tri.textContent = '▼';
-      btn.appendChild(tri);
+    const expanded = hasActiveChild || parentIsActive;
+    
+    if (expanded) {
+      btn.classList.add('open');
+    } else {
+      ul.hidden = true;
     }
-    
-    btn.setAttribute('aria-expanded', expanded);
-    ul.hidden = !expanded;
 
     btn.onclick = e => {
       e.preventDefault();
-      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', !isExpanded);
-      ul.hidden = isExpanded;
+      btn.classList.toggle('open');
+      ul.hidden = !ul.hidden;
     };
   });
 }
