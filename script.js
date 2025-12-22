@@ -4,11 +4,9 @@ let settingsToggle, settingsMenu, settingsItems, menuToggle;
 let currentTheme = localStorage.getItem('theme') || 'auto';
 let body = document.body;
 let sidebar = document.getElementById('sidebar');
-// --- Synchronous Initial Theme Check (Fix 1: Prevents FOUC/Shimmer) ---
 (function() {
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 if (currentTheme === 'dark' || (currentTheme === 'auto' && prefersDark)) {
-    // Apply class directly to body before script continues
     document.body.classList.add('dark-theme');
 }
 })();
@@ -31,7 +29,7 @@ if (!sidebar) return;
 if (window.innerWidth > 800) {
     const state = localStorage.getItem('sidebarState');
     if (state === 'hidden') {
-        // This forces the 'hidden' class to be applied instantly.
+        // Force the 'hidden' class to be applied instantly
         sidebar.classList.add('hidden');
     } else {
         sidebar.classList.remove('hidden');
@@ -41,7 +39,6 @@ if (window.innerWidth > 800) {
 
 // --- Theme Management ---
 function applyTheme(theme) {
-    // Uses settingsItems which is set in setupThemeLogic
     settingsItems.forEach(i => i.classList.toggle('active', i.dataset.theme === theme));
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     body.classList.toggle('dark-theme', theme === 'dark' || (theme === 'auto' && prefersDark));
@@ -49,7 +46,6 @@ function applyTheme(theme) {
 }
 
 function setupThemeLogic() {
-    // Assign elements after top bar injection
     settingsToggle = document.getElementById('settings-toggle');
     settingsMenu = document.getElementById('settings-menu');
     settingsItems = document.querySelectorAll('.settings-item');
@@ -110,7 +106,6 @@ function toggleSidebar() {
 
 
 function setupSidebarLogic() {
-    // Assign elements after top bar injection
     menuToggle = document.getElementById('menu-toggle');
 
     menuToggle.addEventListener('click', e => {
@@ -127,7 +122,6 @@ function setupSidebarLogic() {
 }
 
 // --- Sidebar Collapsible Logic ---
-
 function setupSidebarCollapsibles() {
   document.querySelectorAll('#sidebar .sidebar-row > button').forEach(btn => {
     const ul = btn.parentElement.nextElementSibling;
@@ -155,25 +149,19 @@ function setupSidebarCollapsibles() {
 
 // --- Sidebar navigation ---
 function setActiveSidebarItem() {
-  // Get the full pathname (e.g., '/pages/doc.html')
   const fullPath = window.location.pathname;
   
-  // Also get just the filename for fallback matching
   const filename = fullPath.split('/').pop().split('?')[0].split('#')[0];
   const cleanFilename = filename === '' ? 'index.html' : filename;
   
   document.querySelectorAll('#sidebar a').forEach(link => {
       const href = link.getAttribute('href');
       
-      // Check if the href matches either:
-      // 1. The full pathname (e.g., '/pages/doc.html' === '/pages/doc.html')
-      // 2. Just the filename (e.g., 'doc.html' === 'doc.html')
-      // 3. The href ends with the current path (for relative links)
       const isActive = 
-          href === fullPath ||                    // Exact match with full path
-          href === cleanFilename ||               // Match just filename
-          fullPath.endsWith(href) ||              // Path ends with href
-          (href.startsWith('/') && fullPath === href); // Absolute path match
+          href === fullPath ||
+          href === cleanFilename ||
+          fullPath.endsWith(href) ||
+          (href.startsWith('/') && fullPath === href);
       
       link.classList.toggle('active', isActive);
   });
@@ -186,7 +174,6 @@ function setupPrevNextNavigation() {
   const filename = fullPath.split('/').pop().split('?')[0].split('#')[0];
   const cleanFilename = filename === '' ? 'index.html' : filename;
   
-  // Find current index using the same matching logic as setActiveSidebarItem
   let currentIndex = sidebarLinks.findIndex(link => {
       const href = link.getAttribute('href');
       return href === fullPath || 
@@ -194,8 +181,7 @@ function setupPrevNextNavigation() {
              fullPath.endsWith(href) ||
              (href.startsWith('/') && fullPath === href);
   });
-  
-  // Fallback: if still not found and we're on root/index
+
   if (currentIndex === -1 && (cleanFilename === 'index.html' || fullPath === '/')) {
       currentIndex = sidebarLinks.findIndex(a => {
           const href = a.getAttribute('href');
@@ -238,9 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('textarea[readonly]').forEach(ta => {
     let lines = ta.value.split('\n');
     
-    // Remove first empty line if exists
     if (lines[0] === '') lines.shift();
-    // Remove last empty line if exists
     else if (lines[lines.length - 1] === '') lines.pop();
     
     ta.value = lines.join('\n');
@@ -251,11 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const runOnLoad = () => {
-    // 1. Assign global DOM elements (must happen after fetch)
     body = document.body;
     sidebar = document.getElementById('sidebar');
 
-    // 2. Setup logic that depends on injected content
     setupThemeLogic();
     setupSidebarLogic();
     setActiveSidebarItem();
@@ -263,10 +245,47 @@ const runOnLoad = () => {
     setupSidebarCollapsibles(); 
     initializeSidebar();
 
-    // 4. Attach resize listener
     window.addEventListener('resize', handleGlobalResize); 
 };
 
+const initializeApp = async () => {
+
+  const topBarContainer = document.getElementById('top-bar-container');
+  const sidebar = document.getElementById('sidebar');
+  
+  const topbarPath = topBarContainer.dataset.src || 'topbar.html';
+  const sidebarPath = sidebar.dataset.src || 'sidebar.html';
+
+  try {
+      const [topBarResponse, sidebarResponse] = await Promise.all([
+          fetch(topbarPath),
+          fetch(sidebarPath)
+      ]);
+
+      if (topBarResponse.ok) {
+          topBarContainer.innerHTML = await topBarResponse.text();
+      } else {
+          console.error('Failed to load topbar.html');
+          topBarContainer.innerHTML = '<p style="padding:0 2rem;">Error loading top bar.</p>';
+      }
+
+      if (sidebarResponse.ok) {
+          sidebar.innerHTML = await sidebarResponse.text();
+      } else {
+          console.error('Failed to load sidebar.html');
+          sidebar.innerHTML = '<p style="padding:1rem;">Error loading sidebar.</p>';
+      }
+
+  } catch (e) {
+      console.error('Error fetching content:', e);
+      topBarContainer.innerHTML = '<p style="padding:0 2rem;">Top bar requires web server (CORS).</p>';
+      sidebar.innerHTML = '<p style="padding:1rem;">Sidebar requires web server (CORS).</p>';
+  }
+
+  runOnLoad();
+};
+
+/*
 const initializeApp = async () => {
 
   // 1. Fetch Top Bar content
@@ -304,11 +323,11 @@ const initializeApp = async () => {
   // 3. Run setup functions after content is loaded
   runOnLoad();
 };
-// Start the async chain
+*/
+
 document.addEventListener('DOMContentLoaded', () => {
-// 1. Force the hidden state check immediately
+// Force the hidden state check immediately
 applyInitialSidebarState(); 
 
-// 2. Then proceed with the content fetching
 initializeApp();
 });

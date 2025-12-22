@@ -50,7 +50,7 @@ body.dark-theme {
 
 *:focus-visible {
   outline: 1.5px solid var(--color-accent);
-  outline-offset: 1px;
+  outline-offset: 0.5px;
 }
 
 html {
@@ -79,11 +79,11 @@ button {
 
 a {
   color: var(--color-accent);
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* --- Top Bar --- */
@@ -115,6 +115,8 @@ a:hover {
 
 #menu-toggle,
 #settings-toggle {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-content-bg);
   cursor: pointer;
   display: flex;
   position: relative;
@@ -123,14 +125,25 @@ a:hover {
   font-size: 1.4rem;
 }
 
+#menu-toggle:focus-visible,
+#settings-toggle:focus-visible {
+  outline: 1.5px solid var(--color-accent);
+  outline-offset: -2.5px;
+}
+
 .nav-arrow {
-  font-size: 1.7rem;
+  font-size: 2rem;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0 1rem 0.2rem 1rem;
+  padding: 0 0.75rem;
   width: auto;
   height: auto;
+}
+
+.nav-arrow:focus-visible {
+  outline: 1.5px solid var(--color-accent);
+  outline-offset: -2.5px;
 }
 
 .nav-arrow.disabled {
@@ -252,10 +265,10 @@ a:hover {
 }
 
 #sidebar li.main-page > a {
-  font-weight: 500;
-  padding: 0.8rem 1rem 0.8rem 1rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
   text-align: center;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
 }
 
 #sidebar li.separator {
@@ -561,9 +574,13 @@ details > p {
 
 /* ------------------------------ Responsive Layout ------------------------------ */
 @media (max-width:800px) {
+  body {
+    font-size: 1.8rem;
+  }
+
   #sidebar { 
     width: var(--sidebar-width-mobile);
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% - 1px));
     transition: transform 0.3s;
     height: calc(100vh - 4rem);
     top: 4rem;
@@ -571,7 +588,21 @@ details > p {
     max-height: calc(100vh - 4rem);
     border: none;
   }
-  
+
+  #sidebar li > div.sidebar-row a,
+  #sidebar li.main-page > a,
+  #sidebar li a {
+    padding: 0.8rem 1rem;
+  }
+
+  #sidebar li > div.sidebar-row button {
+    width: 3.7rem;
+  }
+
+  #sidebar li.separator {
+    padding: 0.6rem 1rem;
+  }
+
   #sidebar.visible {
     transform: translateX(0);
   }
@@ -660,10 +691,16 @@ details > p {
 
 @media (hover: hover) {
   #top-bar a:hover,
-  #top-bar button:hover {
+  .nav-arrow:hover {
     color: var(--color-accent);
     text-shadow: 0 0 5px var(--text-shadow-color);
   }
+
+  #menu-toggle:hover,
+  #settings-toggle:hover {
+    background-color: var(--color-hover-bg);
+  }
+
   .settings-item:hover {
     background-color: var(--color-hover-bg);
   }
@@ -696,10 +733,16 @@ details > p {
 
 @media (hover: none) {
   #top-bar a:active,
-  #top-bar button:active {
+  .nav-arrow:hover {
     color: var(--color-accent);
-    text-shadow: 2px 2px 5px var(--text-shadow-color), -2px -2px 5px var(--text-shadow-color);
+    text-shadow: 0 0 5px var(--text-shadow-color);
   }
+
+  #menu-toggle:hover,
+  #settings-toggle:hover {
+    background-color: var(--color-hover-bg);
+  }
+
   .settings-item:active {
     background-color: var(--color-hover-bg);
   }
@@ -718,10 +761,13 @@ details > p {
   }
 }
 
+body:has(#sidebar.visible) #menu-toggle,
 #top-bar-container:has(#settings-menu.visible) #settings-toggle {
   color: var(--color-accent);
+  background-color: var(--color-active-bg-light);
 }
 
-body:has(#sidebar.visible) #menu-toggle {
-  color: var(--color-accent);
+body:has(#sidebar.visible) #menu-toggle:hover,
+#top-bar-container:has(#settings-menu.visible) #settings-toggle:hover {
+  background-color: var(--color-active-hover-bg);
 }
