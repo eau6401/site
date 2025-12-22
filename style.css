@@ -18,7 +18,7 @@
 }
 
 body.dark-theme {
-  --color-primary: #222423;
+  --color-primary: #202020;
   --color-accent: #0dba08;
   --color-accent-2: #113858;
   --color-text: #d0d0d0;
@@ -116,7 +116,7 @@ a:hover {
 #menu-toggle,
 #settings-toggle {
   border: 1px solid var(--color-border);
-  background-color: var(--color-content-bg);
+  background-color: var(--color-primary);
   cursor: pointer;
   display: flex;
   position: relative;
@@ -738,8 +738,8 @@ details > p {
     text-shadow: 0 0 5px var(--text-shadow-color);
   }
 
-  #menu-toggle:hover,
-  #settings-toggle:hover {
+  #menu-toggle:active,
+  #settings-toggle:active {
     background-color: var(--color-hover-bg);
   }
 
@@ -762,12 +762,14 @@ details > p {
 }
 
 body:has(#sidebar.visible) #menu-toggle,
+body:has(#sidebar:not(.hidden)) #menu-toggle,
 #top-bar-container:has(#settings-menu.visible) #settings-toggle {
   color: var(--color-accent);
   background-color: var(--color-active-bg-light);
 }
 
 body:has(#sidebar.visible) #menu-toggle:hover,
+body:has(#sidebar:not(.hidden)) #menu-toggle:hover,
 #top-bar-container:has(#settings-menu.visible) #settings-toggle:hover {
   background-color: var(--color-active-hover-bg);
 }
