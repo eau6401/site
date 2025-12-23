@@ -104,7 +104,6 @@ function toggleSidebar() {
     }
 }
 
-
 function setupSidebarLogic() {
     menuToggle = document.getElementById('menu-toggle');
 
@@ -215,6 +214,22 @@ function setupPrevNextNavigation() {
   }
 }
 
+function setupExternalLinks() {
+  // Select every anchor tag on the page
+  const links = document.querySelectorAll('a[href]');
+  
+  links.forEach(link => {
+    // Check if the link's hostname is different from the current site's hostname
+    // Also ensures it's an actual web link (http/https)
+    if (link.hostname && link.hostname !== window.location.hostname) {
+      link.setAttribute('target', '_blank');
+      
+      // Security Best Practice: prevent the new page from accessing your window object
+      link.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+}
+
 // --- Global Resize Handler ---
 const handleGlobalResize = debounce(() => {
     initializeSidebar();
@@ -244,6 +259,7 @@ const runOnLoad = () => {
     setupPrevNextNavigation();
     setupSidebarCollapsibles(); 
     initializeSidebar();
+    setupExternalLinks();
 
     window.addEventListener('resize', handleGlobalResize); 
 };
