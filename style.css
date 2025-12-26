@@ -2,7 +2,7 @@
   --sidebar-width-desktop: 25rem;
   --sidebar-width-mobile: 25rem;
 
-  --color-primary: #f5f7f5;
+  --color-primary: rgba(245, 247, 245, 0.75);
   --color-accent: #0b8d06;
   --color-accent-2: #8fa9bc;
   --color-text: #333;
@@ -15,22 +15,24 @@
   --color-active-hover-bg: #d6efd5;
   --color-table-header: #e5e5e5;
   --text-shadow-color: rgba(16, 159, 11, 0.6);
+  --topbar-gradient: linear-gradient(-90deg, var(--color-primary) 20%, var(--color-active-bg-light) 100%);
 }
 
 body.dark-theme {
-  --color-primary: #202020;
+  --color-primary: rgba(32, 32, 32, 0.75);
   --color-accent: #0dba08;
   --color-accent-2: #113858;
   --color-text: #d0d0d0;
   --color-background: #191919;
   --color-content-bg: #252525;
   --color-border: #666;
-  --color-hover-bg: #252525;
-  --color-active-bg: #4f4f4f;
+  --color-hover-bg: #282828;
+  --color-active-bg: #404040;
   --color-active-bg-light: #303e30;
   --color-active-hover-bg: #30542c;
   --color-table-header: #333;
   --text-shadow-color: rgba(16, 159, 11, 0.8);
+  --topbar-gradient: linear-gradient(-90deg, var(--color-primary) 0%, var(--color-active-bg) 100%);
 }
 
 @font-face {
@@ -66,7 +68,7 @@ body {
   background-color: var(--color-background);
   color: var(--color-text);
   font-size: 1.6rem;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
 }
 
 button {
@@ -85,11 +87,12 @@ a {
 
 a:hover {
   text-decoration: none;
+  /*text-shadow: 0 0 3px var(--text-shadow-color);*/
 }
 
 a[target="_blank"]::after {
   content: " [↗]";
-  font-size: 0.75em;
+  font-size: 70%;
   margin-left: 0.1rem;
   letter-spacing: -0.2rem;
   vertical-align: 0.45rem;
@@ -105,7 +108,7 @@ a[target="_blank"]::after {
   left: 0;
   right: 0;
   height: 4rem;
-  background-color: var(--color-primary);
+  background: var(--topbar-gradient);
   color: var(--color-text);
   display: flex;
   align-items: center;
@@ -114,6 +117,7 @@ a[target="_blank"]::after {
   z-index: 1000;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   gap: 1rem;
+  backdrop-filter: blur(0.5rem);
 }
 
 #top-bar a {
@@ -137,6 +141,7 @@ a[target="_blank"]::after {
   width: auto;
   height: auto;
   font-size: 1.5rem;
+  padding: 0.1rem 0.4rem;
 }
 
 #menu-toggle:focus-visible,
@@ -242,25 +247,26 @@ a[target="_blank"]::after {
 }
 
 #sidebar li > div.sidebar-row button {
-  width: 3.3rem;
+  width: 3.15rem;
   padding: 0;
   border-left: 1px solid var(--color-border);
   position: relative;
 }
 
 #sidebar li > div.sidebar-row button::after {
-  content: '▼';
+  content: 'ߍ';
   position: absolute;
-  top: 50%;
+  top: 42%;
   left: 50%;
-  transform: translate(-50%, -50%) rotate(-90deg);
-  font-size: 1.5rem;
+  transform: translate(-50%, -50%) rotate(90deg);
+  font-size: 1.6rem;
   opacity: 0.7;
   transition: transform 0.2s;
+  transform-origin: 50% 60%;
 }
 
 #sidebar li > div.sidebar-row button.open::after {
-  transform: translate(-50%, -50%) rotate(0deg);
+  transform: translate(-50%, -50%) rotate(180deg);
   opacity: 1;
   color: var(--color-accent);
 }
@@ -282,16 +288,16 @@ a[target="_blank"]::after {
 
 #sidebar li.main-page > a {
   font-weight: 500;
-  padding: 0.6rem 1rem;
+  padding: 0.5rem 1rem;
   text-align: center;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
 }
 
 #sidebar li.separator {
   text-align: center;
   font-weight: 500;
-  font-size: 1.5rem;
-  padding: 0.4rem 1rem;
+  font-size: 1.4rem;
+  padding: 0.525rem 1rem;
   user-select: none;
   background-color: var(--color-table-header);
 }
@@ -313,9 +319,9 @@ a[target="_blank"]::after {
   display: block;
   text-decoration: none;
   color: var(--color-text);
-  padding: 0.6rem 1rem;
+  padding: 0.5rem 1rem;
   user-select: none;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 #sidebar li a.active {
@@ -346,6 +352,9 @@ a[target="_blank"]::after {
   width: 100%;
   max-width: 110rem;
   line-height: 1.4;
+  counter-reset: section-counter;
+  container-type: inline-size;
+  container-name: maincontent;
 }
 
 .content-section h1 {
@@ -356,11 +365,12 @@ a[target="_blank"]::after {
 }
 
 .content-section h2 {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   margin-bottom: 0.5rem;
   font-size: 2.2rem;
   font-weight: 500;
   clear: right;
+  counter-increment: section-counter;
 }
 
 .content-section h3 {
@@ -376,15 +386,20 @@ a[target="_blank"]::after {
   margin-top: 0;
 }
 
+.content-section h2::before {
+  content: counter(section-counter) " ";
+  margin-right: 0;
+  font-size: 75%;
+}
+
 /* ------------------------------ Tables and Data ------------------------------ */
 table {
   margin: 1.5rem auto;
   max-width: 100%;
-  width: max-content;
   border-collapse: collapse;
   font-size: 1.5rem;
-  display: block;
-  overflow-x: auto;
+  display: table;
+  width: calc(100% - 4rem);
 }
 
 th, td {
@@ -419,6 +434,29 @@ table.sticky-header th {
   background-color: var(--color-background);
 }
 
+table.wide-table {
+  display: block;
+  overflow-x: auto;
+  width: max-content;
+  transform: rotateX(180deg);
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+table.wide-table * {
+  transform: rotateX(180deg);
+}
+
+table.wide-table caption {
+  max-width: 100cqw;
+  width: max-content;
+  position: sticky;
+  box-sizing: border-box;
+  padding-top: 0.8rem;
+  left: 0;
+  caption-side: top;
+}
+
 /* ------------------------------ Figures ------------------------------ */
 caption, figcaption {
   font-size: 1.3rem;
@@ -434,7 +472,7 @@ figcaption {
 }
 
 figure {
-  margin: 2.5rem auto;
+  margin: 1.5rem auto 2rem auto;
   max-width: 80rem;
   display: table;
 }
@@ -480,7 +518,7 @@ table.align-right {
 
 body.dark-theme img {
   opacity: 0.75;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.5s ease;
 }
 
 body.dark-theme img:hover {
@@ -545,9 +583,9 @@ details {
 
 summary {
   padding: 0.4rem 1rem;
-  font-size: 1.9rem;
+  font-size: 1.8rem;
   font-weight: 500;
-  background-color: var(--color-active-bg-light);
+  background-color: var(--color-content-bg);
   cursor: pointer;
   list-style-position: outside;
   display: flex;
@@ -556,7 +594,7 @@ summary {
 }
 
 summary:hover {
-  background-color: var(--color-active-hover-bg);
+  background-color: var(--color-active-bg);
 }
 
 [open] summary {
@@ -564,16 +602,18 @@ summary:hover {
 }
 
 summary::after {
-  content: "▼";
-  transform: rotate(-90deg);
+  content: "ߍ";
   margin-left: 1rem;
-  font-size: 1.5rem;
-  transition: transform 0.2s;
+  margin-top: -0.65rem;
+  transform: rotate(90deg);
+  font-size: 1.75rem;
   opacity: 0.7;
+  transition: transform 0.2s;
+  transform-origin: 45% 60%;
 }
 
 [open] summary::after {
-  transform: rotate(0deg);
+  transform: rotate(180deg);
   color: var(--color-accent);
   opacity: 1;
 }
@@ -590,10 +630,6 @@ details > p {
 
 /* ------------------------------ Responsive Layout ------------------------------ */
 @media (max-width:800px) {
-  body {
-    font-size: 1.8rem;
-  }
-
   #sidebar { 
     width: var(--sidebar-width-mobile);
     transform: translateX(calc(-100% - 1px));
@@ -640,7 +676,7 @@ details > p {
   figure {
     width: 100%;
     max-width: 100%;
-    margin: 2.5rem auto;
+    margin: 1.5rem auto 2rem auto;
   }
   
   figure img {
@@ -667,11 +703,17 @@ details > p {
     margin-top: 0.8rem;
   }
 
+  table.wide-table caption {
+    max-width: calc(100vw - 4rem);
+    position: sticky;
+    left: 0;
+  }
+
   table {
     max-width: 100%;
     margin: 1.5rem auto;
-    display: block;
-    overflow-x: auto;
+    display: table;
+    width: 100%;
   }
 
   table.sticky-header {
@@ -732,11 +774,9 @@ details > p {
   #sidebar li a:hover,
   #sidebar li button:hover {
     background-color: var(--color-hover-bg);
-    text-shadow: 0 0 1px var(--color-text);
   }
   #sidebar li a.active:hover {
     background-color: var(--color-active-hover-bg);
-    text-shadow: 0 0 1px var(--color-accent);
   }
   .settings-item:active {
     background-color: var(--color-active-bg);
@@ -794,4 +834,19 @@ body:has(#sidebar.visible) #menu-toggle,
 body:has(#sidebar.visible) #menu-toggle:hover,
 #top-bar-container:has(#settings-menu.visible) #settings-toggle:hover {
   background-color: var(--color-active-hover-bg);
+}
+
+/* timestamp */
+.modification-date {
+  display: block;
+  text-align: left;
+  font-family: font-mono, monospace;
+  font-size: 1.1rem;
+  color: var(--color-text);
+  margin-top: -1rem;
+  margin-bottom: 0.5rem;
+}
+
+.modification-date time {
+  font-weight: bold;
 }

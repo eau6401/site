@@ -264,6 +264,7 @@ const runOnLoad = () => {
     window.addEventListener('resize', handleGlobalResize); 
 };
 
+/*
 const initializeApp = async () => {
 
   const topBarContainer = document.getElementById('top-bar-container');
@@ -300,50 +301,70 @@ const initializeApp = async () => {
 
   runOnLoad();
 };
-
-/*
-const initializeApp = async () => {
-
-  // 1. Fetch Top Bar content
-  try {
-      const topBarContainer = document.getElementById('top-bar-container');
-      const topbarPath = topBarContainer.dataset.src || 'topbar.html';
-      const topBarResponse = await fetch(topbarPath);
-      if (topBarResponse.ok) {
-          topBarContainer.innerHTML = await topBarResponse.text();
-      } else {
-          console.error('Failed to load topbar.html');
-          topBarContainer.innerHTML = '<p style="padding:0 2rem;">Error loading top bar.</p>';
-      }
-  } catch (e) {
-      console.error('Error fetching top bar:', e);
-      document.getElementById('top-bar-container').innerHTML = '<p style="padding:0 2rem;">Top bar requires web server (CORS).</p>';
-  }
-
-  // 2. Fetch Sidebar content
-  try {
-      const sidebar = document.getElementById('sidebar');
-      const sidebarPath = sidebar.dataset.src || 'sidebar.html';
-      const sidebarResponse = await fetch(sidebarPath);
-      if (sidebarResponse.ok) {
-          sidebar.innerHTML = await sidebarResponse.text();
-      } else {
-          console.error('Failed to load sidebar.html');
-          sidebar.innerHTML = '<p style="padding:1rem;">Error loading sidebar.</p>';
-      }
-  } catch (e) {
-      console.error('Error fetching sidebar:', e);
-      document.getElementById('sidebar').innerHTML = '<p style="padding:1rem;">Sidebar requires web server (CORS).</p>';
-  }
-
-  // 3. Run setup functions after content is loaded
-  runOnLoad();
-};
 */
 
-document.addEventListener('DOMContentLoaded', () => {
-// Force the hidden state check immediately
-applyInitialSidebarState(); 
 
-initializeApp();
+// --- 1. Eager Fetching (Global Scope) ---
+const sidebarSrc = document.getElementById('sidebar')?.dataset.src || 'sidebar.html';
+const topbarSrc = document.getElementById('top-bar-container')?.dataset.src || 'topbar.html';
+
+const sidebarRequest = fetch(sidebarSrc)
+  .then(response => response.ok ? response.text() : '<p>Error loading sidebar</p>')
+  .catch(e => `<p>Connection error: ${e.message}</p>`);
+
+const topbarRequest = fetch(topbarSrc)
+  .then(response => response.ok ? response.text() : '<p>Error loading topbar</p>')
+  .catch(e => `<p>Connection error: ${e.message}</p>`);
+
+
+  function getDateTimestamp(dateString) {
+    const date = new Date(dateString);
+    
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Helsinki',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit',
+        hour12: false
+    });
+
+    const parts = formatter.formatToParts(date);
+    const find = (type) => parts.find(p => p.type === type).value;
+
+    // Constructing the precise requested format
+    return `${find('year')}-${find('month')}-${find('day')} ${find('hour')}:${find('minute')}`;
+}
+
+// --- 2. Initialization Logic ---
+const initializeApp = async () => {
+  const sidebarEl = document.getElementById('sidebar');
+  const topBarEl = document.getElementById('top-bar-container');
+
+  const [sidebarContent, topbarContent] = await Promise.all([
+    sidebarRequest,
+    topbarRequest
+  ]);
+
+  sidebarEl.innerHTML = sidebarContent;
+  topBarEl.innerHTML = topbarContent;
+
+  runOnLoad();
+  injectTimestamp();
+};
+
+function injectTimestamp() {
+  // Target the permanent container by class instead of an ID anchor
+  const dateContainer = document.querySelector('.modification-date');
+
+  if (dateContainer) {
+    const timestamp = getDateTimestamp(document.lastModified);
+    
+    // Populate the existing div with the formatted time element
+    // This preserves the div in your HTML without needing to delete/move anything
+    dateContainer.innerHTML = `<time>${timestamp}</time>`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  applyInitialSidebarState();
+  initializeApp();
 });
